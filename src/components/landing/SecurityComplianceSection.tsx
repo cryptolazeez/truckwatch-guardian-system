@@ -29,8 +29,8 @@ const SecurityComplianceSection = () => {
           </div>
           <div className="md:w-1/2 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
             <img 
-              src="/lovable-uploads/2cb1c6b2-779d-4eb3-9843-827204a3f9a8.png" 
-              alt="Security and Compliance" 
+              src="/lovable-uploads/e5372199-0139-48ad-9438-38ebfa6969df.png" 
+              alt="Security Features" 
               className="rounded-lg shadow-xl object-cover w-full h-auto max-h-[450px]" 
             />
           </div>
@@ -41,4 +41,3 @@ const SecurityComplianceSection = () => {
 };
 
 export default SecurityComplianceSection;
-
