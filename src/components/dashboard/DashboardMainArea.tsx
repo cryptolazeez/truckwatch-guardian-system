@@ -1,166 +1,191 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { ReportListItem, ReportStatus } from '@/types';
-import { AlertTriangle, CheckCircle, FileText, Users, Eye } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
-import { Skeleton } from "@/components/ui/skeleton";
-import UserProfileWidget from './UserProfileWidget';
+import { ReportListItem, IncidentType, ReportStatus as ReportStatusType } from '@/types';
+import AnalyticsChart from './AnalyticsChart';
 import NotificationsWidget from './NotificationsWidget';
-// import MiniCalendarWidget from './MiniCalendarWidget';
-// import AnalyticsChart from './AnalyticsChart';
+import MiniCalendarWidget from './MiniCalendarWidget';
+import UserProfileWidget from './UserProfileWidget';
+import DashboardStatCard from './DashboardStatCard';
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { ListChecks, Hourglass, UserCheck, CheckCircle2, Eye, Loader2 } from "lucide-react";
+import { format } from 'date-fns';
 
-const getStatusVariant = (status: ReportStatus): "default" | "secondary" | "destructive" | "outline" => {
-  switch (status) {
-    case 'Pending': return 'default';
-    case 'Reviewed': return 'secondary';
-    case 'Resolved': return 'outline';
-    case 'Rejected': return 'destructive';
-    default: return 'default';
+const fetchDashboardReports = async (): Promise<ReportListItem[]> => {
+  const { data, error } = await supabase
+    .from('reports')
+    .select(`
+      id,
+      created_at,
+      driver_first_name,
+      driver_last_name,
+      incident_type,
+      status,
+      company_name_making_report
+    `)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error("Error fetching reports for dashboard:", error);
+    throw new Error(error.message);
   }
+  
+  return (data || []).map(report => ({
+    id: report.id,
+    created_at: report.created_at,
+    driver_name: `${report.driver_first_name || ''} ${report.driver_last_name || ''}`.trim() || 'N/A',
+    incident_type: report.incident_type as IncidentType,
+    status: report.status as ReportStatusType,
+    company_name_making_report: report.company_name_making_report,
+  }));
 };
 
-const DashboardMainArea: React.FC = () => {
-  const { data: reports, isLoading: isLoadingReports, error: reportsError } = useQuery<ReportListItem[], Error>({
-    queryKey: ['reportsForDashboardMain'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('reports')
-        .select(`
-          id,
-          created_at,
-          driver_first_name,
-          driver_last_name,
-          cdl_number,
-          incident_type,
-          status,
-          company_name_making_report
-        `)
-        .order('created_at', { ascending: false })
-        .limit(10);
+const processReportsForLastNMonths = (reportsToProcess: ReportListItem[], N: number = 6) => {
+  if (!reportsToProcess) return [];
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const monthlyData: { name: string, value: number }[] = [];
+  const today = new Date();
 
-      if (error) {
-        console.error("Error fetching reports:", error);
-        throw new Error(error.message);
+  for (let i = N - 1; i >= 0; i--) {
+    const targetDate = new Date(today.getFullYear(), today.getMonth() - i, 1);
+    const monthName = monthNames[targetDate.getMonth()];
+    const year = targetDate.getFullYear();
+    // Format as "Mon 'YY" e.g., "Jun '25"
+    const monthKey = `${monthName} '${String(year).slice(2)}`; 
+
+    const count = reportsToProcess.filter(report => {
+      const reportDate = new Date(report.created_at);
+      return reportDate.getFullYear() === targetDate.getFullYear() && reportDate.getMonth() === targetDate.getMonth();
+    }).length;
+
+    monthlyData.push({ name: monthKey, value: count });
+  }
+  return monthlyData;
+};
+
+const DashboardMainArea = () => {
+  const [userName, setUserName] = useState("User");
+  const currentDate = format(new Date(), "EEEE, MMMM dd, yyyy");
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user?.email) {
+        const emailPart = session.user.email.split('@')[0];
+        // Capitalize first letter
+        setUserName(emailPart.charAt(0).toUpperCase() + emailPart.slice(1));
+      } else if (session?.user) {
+        setUserName("Valued User"); // Fallback if email is not available but user exists
       }
-      return data.map(report => ({
-        id: report.id,
-        created_at: report.created_at,
-        driver_name: `${report.driver_first_name || ''} ${report.driver_last_name || ''}`.trim() || 'N/A',
-        cdl_number: report.cdl_number,
-        incident_type: report.incident_type,
-        status: report.status as ReportStatus,
-        company_name_making_report: report.company_name_making_report,
-      }));
-    },
+    };
+    fetchUser();
+  }, []);
+
+  const { data: reports = [], isLoading: isLoadingReports, error: reportsError } = useQuery<ReportListItem[], Error>({
+    queryKey: ['dashboardReports'],
+    queryFn: fetchDashboardReports,
   });
 
-  const summaryStats = {
-    totalReports: reports?.length || 0,
-    pendingReports: reports?.filter(r => r.status === 'Pending').length || 0,
-    resolvedReports: reports?.filter(r => r.status === 'Resolved').length || 0,
-  };
+  const totalReports = reports.length;
+  const pendingReportsCount = reports.filter(r => r.status === "Pending").length;
+  const reviewedReportsCount = reports.filter(r => r.status === "Reviewed").length;
+  const resolvedReportsCount = reports.filter(r => r.status === "Resolved").length;
 
-  const StatCard: React.FC<{ title: string; value: string | number; icon: React.ElementType; description?: string }> = ({ title, value, icon: Icon, description }) => (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-        {description && <p className="text-xs text-muted-foreground">{description}</p>}
-      </CardContent>
-    </Card>
-  );
+  const chartData = processReportsForLastNMonths(reports, 6);
 
   return (
-    <main className="flex-1 p-6 space-y-6 bg-gray-50 dark:bg-gray-900 overflow-y-auto">
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
-        <UserProfileWidget />
-        <NotificationsWidget />
-        {/* <MiniCalendarWidget /> */}
-        {/* <AnalyticsChart /> */}
-      </div>
+    <div className="flex-1 bg-slate-100 p-6 overflow-y-auto">
+      <div className="flex justify-between items-start">
+        {/* Main content column */}
+        <div className="flex-grow mr-6 space-y-6">
+          {/* Greeting */}
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">Good morning, {userName}!</h1>
+            <p className="text-sm text-gray-500">{currentDate}</p>
+          </div>
 
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        <StatCard title="Total Reports Filed" value={summaryStats.totalReports} icon={FileText} description="All reports in the system" />
-        <StatCard title="Pending Review" value={summaryStats.pendingReports} icon={AlertTriangle} description="Reports awaiting action" />
-        <StatCard title="Resolved Incidents" value={summaryStats.resolvedReports} icon={CheckCircle} description="Reports that have been closed" />
-      </div>
-      
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-2">
-        <h2 className="text-2xl font-semibold text-gray-800 dark:text-white">Recent Reports</h2>
-        <div className="flex space-x-2">
-          <Button asChild variant="outline">
-            <Link to="/view-reports">
-              <Eye className="mr-2 h-4 w-4" /> View All Reports
-            </Link>
-          </Button>
-          <Button asChild>
-            <Link to="/drivers">
-              <Users className="mr-2 h-4 w-4" /> View Driver Profiles
-            </Link>
-          </Button>
-        </div>
-      </div>
-
-      <Card className="shadow-md">
-        <CardContent className="p-0">
-          {isLoadingReports && (
-            <div className="p-4">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="flex items-center space-x-4 py-2">
-                  <Skeleton className="h-8 w-8 rounded-full" />
-                  <div className="space-y-2">
-                    <Skeleton className="h-4 w-[250px]" />
-                    <Skeleton className="h-3 w-[200px]" />
-                  </div>
-                  <Skeleton className="h-6 w-[100px] ml-auto" />
-                </div>
-              ))}
+          {/* Report Overview Section */}
+          <div className="bg-muted p-6 rounded-lg shadow"> {/* Changed bg-white to bg-muted */}
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-700">Report Overview</h2>
+              <Button asChild variant="outline" size="sm">
+                <Link to="/view-reports">
+                  <Eye className="mr-2 h-4 w-4" /> View All Reports
+                </Link>
+              </Button>
             </div>
-          )}
-          {reportsError && <p className="p-4 text-red-500">Error loading reports: {reportsError.message}</p>}
-          {!isLoadingReports && !reportsError && reports && reports.length > 0 && (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Driver Name</TableHead>
-                  <TableHead className="hidden sm:table-cell">CDL#</TableHead>
-                  <TableHead className="hidden md:table-cell">Incident Type</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="hidden lg:table-cell">Reported By</TableHead>
-                  <TableHead className="text-right">Date</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {reports.slice(0, 5).map((report) => ( // Displaying only top 5 recent reports here
-                  <TableRow key={report.id}>
-                    <TableCell className="font-medium">{report.driver_name}</TableCell>
-                    <TableCell className="hidden sm:table-cell">{report.cdl_number}</TableCell>
-                    <TableCell className="hidden md:table-cell text-xs">{report.incident_type.split('_').map(w=>w[0].toUpperCase()+w.slice(1)).join(' ')}</TableCell>
-                    <TableCell>
-                      <Badge variant={getStatusVariant(report.status)}>{report.status}</Badge>
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell text-xs">{report.company_name_making_report}</TableCell>
-                    <TableCell className="text-right text-xs">{new Date(report.created_at).toLocaleDateString()}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-          {!isLoadingReports && !reportsError && (!reports || reports.length === 0) && (
-             <p className="p-4 text-center text-gray-500">No recent reports found.</p>
-          )}
-        </CardContent>
-      </Card>
-      {/* Placeholder for other dashboard sections like tasks, messages etc. */}
-    </main>
+            
+            {isLoadingReports && (
+              <div className="flex justify-center items-center py-10">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="ml-2">Loading report stats...</p>
+              </div>
+            )}
+
+            {!isLoadingReports && reportsError && (
+              <div className="text-center py-10 text-red-500">
+                <p>Failed to load report statistics.</p>
+              </div>
+            )}
+
+            {!isLoadingReports && !reportsError && (
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
+                <DashboardStatCard 
+                  title="Total Reports" 
+                  value={totalReports} 
+                  icon={ListChecks} 
+                  description="All submitted reports"
+                />
+                <DashboardStatCard 
+                  title="Pending Review" 
+                  value={pendingReportsCount} 
+                  icon={Hourglass} 
+                  iconColor="text-yellow-500"
+                  description="Reports awaiting action"
+                />
+                <DashboardStatCard 
+                  title="Reviewed Reports" 
+                  value={reviewedReportsCount} 
+                  icon={UserCheck} 
+                  iconColor="text-blue-500"
+                  description="Reports under review"
+                />
+                <DashboardStatCard 
+                  title="Resolved Reports" 
+                  value={resolvedReportsCount} 
+                  icon={CheckCircle2} 
+                  iconColor="text-green-500"
+                  description="Successfully closed reports"
+                />
+              </div>
+            )}
+            
+            <h3 className="text-lg font-semibold text-gray-700 mt-6 mb-2">Report Trends (Last 6 Months)</h3>
+            {isLoadingReports ? (
+               <div className="flex justify-center items-center h-[250px]">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="ml-2">Loading chart data...</p>
+              </div>
+            ) : reportsError ? (
+              <div className="flex justify-center items-center h-[250px] text-red-500">
+                <p>Failed to load chart data.</p>
+              </div>
+            ) : (
+              <AnalyticsChart data={chartData} />
+            )}
+            <p className="text-xs text-gray-500 mt-2">Note: Chart displays total reports submitted each month.</p>
+          </div>
+        </div>
+
+        {/* Right gutter/aside */}
+        <aside className="w-80 flex-shrink-0 space-y-6">
+          <UserProfileWidget />
+          <NotificationsWidget />
+          <MiniCalendarWidget />
+        </aside>
+      </div>
+    </div>
   );
 };
 

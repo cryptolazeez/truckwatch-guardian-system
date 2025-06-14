@@ -1,11 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Link, useNavigate } from 'react-router-dom';
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"; // AvatarImage removed as it's not used
+import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
-import { Button } from '@/components/ui/button';
-import { LogOut, Settings } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 
 interface UserProfileData {
   name: string;
@@ -16,8 +14,6 @@ interface UserProfileData {
 const UserProfileWidget = () => {
   const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-  const { toast } = useToast();
 
   useEffect(() => {
     const fetchAndSetUserProfile = async (currentUser: User | null) => {
@@ -85,26 +81,7 @@ const UserProfileWidget = () => {
     };
   }, []);
 
-  const handleLogout = async () => {
-    setLoading(true);
-    const { error } = await supabase.auth.signOut();
-    setLoading(false);
-    if (error) {
-      toast({
-        title: "Logout Failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Logged Out",
-        description: "You have been successfully logged out.",
-      });
-      navigate('/auth'); // Redirect to auth page after logout
-    }
-  };
-
-  if (loading && !userProfile) { // Show full loader only if no profile yet
+  if (loading) {
     return (
       <div className="bg-white p-4 rounded-lg shadow flex items-center space-x-3 animate-pulse">
         <div className="h-12 w-12 bg-gray-300 rounded-full"></div>
@@ -118,6 +95,8 @@ const UserProfileWidget = () => {
   }
 
   if (!userProfile) {
+    // This state might be briefly visible if auth state changes to logged out
+    // or if initial session fetch fails and results in no user.
     return (
       <div className="bg-white p-4 rounded-lg shadow flex items-center space-x-3">
         <Avatar className="h-12 w-12">
@@ -125,10 +104,7 @@ const UserProfileWidget = () => {
         </Avatar>
         <div>
             <h3 className="font-semibold text-gray-800">No User</h3>
-            <p className="text-sm text-gray-500">Please log in to view profile.</p>
-            <Button variant="link" asChild className="p-0 h-auto">
-                <Link to="/auth">Login</Link>
-            </Button>
+            <p className="text-sm text-gray-500">User information not available.</p>
         </div>
       </div>
     );
@@ -137,21 +113,13 @@ const UserProfileWidget = () => {
   return (
     <div className="bg-white p-4 rounded-lg shadow flex items-center space-x-3">
       <Avatar className="h-12 w-12">
+        {/* <AvatarImage src="/path-to-avatar.png" alt={userProfile.name} /> */}
         <AvatarFallback className="bg-gray-200 text-gray-700 text-xl">{userProfile.avatarInitials}</AvatarFallback>
       </Avatar>
-      <div className="flex-1">
+      <div>
         <h3 className="font-semibold text-gray-800">{userProfile.name}</h3>
         <p className="text-sm text-gray-500">{userProfile.company}</p>
-        <div className="flex items-center space-x-2 mt-1">
-            <Button variant="link" size="sm" asChild className="text-xs text-primary hover:underline p-0 h-auto">
-                <Link to="#"> {/* Replace # with actual account page link later */}
-                    <Settings className="mr-1 h-3 w-3" /> Account
-                </Link>
-            </Button>
-            <Button variant="link" size="sm" onClick={handleLogout} disabled={loading} className="text-xs text-destructive hover:underline p-0 h-auto">
-                <LogOut className="mr-1 h-3 w-3" /> Log Out
-            </Button>
-        </div>
+        <Link to="#" className="text-xs text-primary hover:underline">Account &gt;</Link>
       </div>
     </div>
   );

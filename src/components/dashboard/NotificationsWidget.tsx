@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Notification } from '@/types'; // Changed import path
+import { Notification } from '@/integrations/supabase/types';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BellRing, CalendarClock, AlertCircle, Info, CheckCircle, Loader2 } from 'lucide-react';
@@ -76,7 +76,7 @@ const NotificationsWidget = () => {
   };
 
   return (
-    <Card className="bg-blue-50 dark:bg-blue-900/30 overflow-hidden shadow-lg animate-fade-in">
+    <Card className="bg-slate-50 dark:bg-slate-800 overflow-hidden shadow-lg animate-fade-in">
       <CardHeader className="border-b">
         <CardTitle className="flex items-center text-lg">
           <BellRing className="mr-2 h-5 w-5 text-primary" />

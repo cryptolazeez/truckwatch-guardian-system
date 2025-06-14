@@ -40,22 +40,8 @@ export interface ReportListItem {
   id: string;
   created_at: string;
   driver_name: string; // Combination of first and last
-  cdl_number: string; // Added CDL number
   incident_type: IncidentType;
   status: ReportStatus;
   company_name_making_report: string;
-}
-
-// Definition for Notification items
-export interface Notification {
-  id: string;
-  title: string;
-  message: string;
-  notification_time: string; // Matches the 'notifications' table 'notification_time' column
-  is_new: boolean;
-  source?: string | null;
-  link_to?: string | null;
-  logo?: string | null;
-  created_at?: string | null; // Matches the 'notifications' table 'created_at' column
 }
 
