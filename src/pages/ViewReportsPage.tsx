@@ -1,4 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Report, ReportListItem, ReportStatus as ReportStatusType, IncidentType } from '@/types'; // Assuming types.ts is created
 import {
   Table,
   TableHeader,
@@ -18,64 +22,88 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Eye, FileSearch, Search as SearchIcon, Filter, ListChecks, Hourglass, CheckCircle2, XCircle, UserCheck } from "lucide-react";
+import { Eye, FileSearch, Search as SearchIcon, Filter, ListChecks, Hourglass, CheckCircle2, XCircle, UserCheck, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import DashboardStatCard from "@/components/dashboard/DashboardStatCard";
+import { useToast } from '@/hooks/use-toast';
 
-interface Report {
-  id: string;
-  dateSubmitted: string;
-  driverName: string;
-  incidentType: string;
-  status: "Pending" | "Reviewed" | "Resolved" | "Rejected";
-  companyName: string;
-}
+const reportStatuses: ReportStatusType[] = ["Pending", "Reviewed", "Resolved", "Rejected"];
 
-const mockReports: Report[] = [
-  { id: "RPT001", dateSubmitted: "2025-06-10", driverName: "John Doe", incidentType: "Speeding", status: "Pending", companyName: "Quick Haul Inc." },
-  { id: "RPT002", dateSubmitted: "2025-06-11", driverName: "Jane Smith", incidentType: "Reckless Driving", status: "Reviewed", companyName: "Logistics Pros" },
-  { id: "RPT003", dateSubmitted: "2025-06-12", driverName: "Mike Johnson", incidentType: "Unsafe Lane Change", status: "Resolved", companyName: "Safe Transports" },
-  { id: "RPT004", dateSubmitted: "2025-06-13", driverName: "Sarah Williams", incidentType: "Aggressive Driving", status: "Pending", companyName: "Reliable Freight" },
-  { id: "RPT005", dateSubmitted: "2025-06-14", driverName: "David Brown", incidentType: "Employment Defaults", status: "Rejected", companyName: "Quick Haul Inc." },
-  { id: "RPT006", dateSubmitted: "2025-06-14", driverName: "Chris Green", incidentType: "Speeding", status: "Pending", companyName: "Logistics Pros" },
-  { id: "RPT007", dateSubmitted: "2025-06-15", driverName: "Emily White", incidentType: "Reckless Driving", status: "Resolved", companyName: "Reliable Freight" },
-];
+const fetchReports = async (): Promise<ReportListItem[]> => {
+  const { data, error } = await supabase
+    .from('reports')
+    .select(`
+      id,
+      created_at,
+      driver_first_name,
+      driver_last_name,
+      incident_type,
+      status,
+      company_name_making_report
+    `)
+    .order('created_at', { ascending: false });
 
-const reportStatuses: Report["status"][] = ["Pending", "Reviewed", "Resolved", "Rejected"];
+  if (error) {
+    console.error("Error fetching reports:", error);
+    throw new Error(error.message);
+  }
+  
+  return (data || []).map(report => ({
+    id: report.id,
+    created_at: report.created_at,
+    driver_name: `${report.driver_first_name || ''} ${report.driver_last_name || ''}`.trim() || 'N/A',
+    incident_type: report.incident_type as IncidentType, // Cast as Supabase might return string
+    status: report.status as ReportStatusType, // Cast
+    company_name_making_report: report.company_name_making_report,
+  }));
+};
+
 
 const ViewReportsPage = () => {
+  const { toast } = useToast();
+  const { data: allReports = [], isLoading: isLoadingReports, error: reportsError } = useQuery<ReportListItem[], Error>({
+    queryKey: ['reports'],
+    queryFn: fetchReports,
+  });
+
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState<Report["status"] | "All">("All");
-  const [filteredReports, setFilteredReports] = useState<Report[]>(mockReports);
+  const [selectedStatus, setSelectedStatus] = useState<ReportStatusType | "All">("All");
+  const [filteredReports, setFilteredReports] = useState<ReportListItem[]>([]);
 
-  // Calculate summary statistics
-  const totalReports = mockReports.length;
-  const pendingReportsCount = mockReports.filter(r => r.status === "Pending").length;
-  const reviewedReportsCount = mockReports.filter(r => r.status === "Reviewed").length;
-  const resolvedReportsCount = mockReports.filter(r => r.status === "Resolved").length;
-  const rejectedReportsCount = mockReports.filter(r => r.status === "Rejected").length;
+  useEffect(() => {
+    if (reportsError) {
+      toast({
+        title: "Error Fetching Reports",
+        description: reportsError.message,
+        variant: "destructive",
+      });
+    }
+  }, [reportsError, toast]);
 
-  const handleSearch = () => {
-    let reports = mockReports;
-
+  useEffect(() => {
+    let reportsToFilter = allReports;
     if (searchTerm) {
-      reports = reports.filter(report =>
-        report.driverName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        report.companyName.toLowerCase().includes(searchTerm.toLowerCase())
+      reportsToFilter = reportsToFilter.filter(report =>
+        report.driver_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        report.company_name_making_report.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-
     if (selectedStatus !== "All") {
-      reports = reports.filter(report => report.status === selectedStatus);
+      reportsToFilter = reportsToFilter.filter(report => report.status === selectedStatus);
     }
-    setFilteredReports(reports);
-  };
-  
-  // Effect to apply search when searchTerm or selectedStatus changes, if you want live filtering
-  // For now, we use a search button as per typical dashboard patterns.
-  // useEffect(() => {
-  //   handleSearch();
-  // }, [searchTerm, selectedStatus]);
+    setFilteredReports(reportsToFilter);
+  }, [searchTerm, selectedStatus, allReports]);
+
+
+  // Calculate summary statistics from allReports (not filteredReports)
+  const totalReports = allReports.length;
+  const pendingReportsCount = allReports.filter(r => r.status === "Pending").length;
+  const reviewedReportsCount = allReports.filter(r => r.status === "Reviewed").length;
+  const resolvedReportsCount = allReports.filter(r => r.status === "Resolved").length;
+  // const rejectedReportsCount = allReports.filter(r => r.status === "Rejected").length; // If needed
+
+  // No explicit handleSearch button needed if useEffect handles filtering live.
+  // If button is preferred, move filtering logic into a handleSearch function called by button and useEffect.
 
   return (
     <div className="container mx-auto py-8 px-4 md:px-6">
@@ -95,7 +123,7 @@ const ViewReportsPage = () => {
           title="Total Reports" 
           value={totalReports} 
           icon={ListChecks} 
-          description={`${mockReports.length} reports overall`}
+          description={`${totalReports} reports overall`}
         />
         <DashboardStatCard 
           title="Pending Review" 
@@ -118,16 +146,6 @@ const ViewReportsPage = () => {
           iconColor="text-green-500"
           description={`${resolvedReportsCount} reports successfully closed`}
         />
-         {/* You can add more cards, for example, for rejected reports */}
-         {/* 
-         <DashboardStatCard 
-           title="Rejected Reports" 
-           value={rejectedReportsCount} 
-           icon={XCircle} 
-           iconColor="text-red-500"
-           description={`${rejectedReportsCount} reports were rejected`}
-         /> 
-         */}
       </div>
 
       <Card className="mb-8">
@@ -158,7 +176,7 @@ const ViewReportsPage = () => {
               </label>
               <Select
                 value={selectedStatus}
-                onValueChange={(value: Report["status"] | "All") => setSelectedStatus(value)}
+                onValueChange={(value: ReportStatusType | "All") => setSelectedStatus(value)}
               >
                 <SelectTrigger id="status-filter" className="w-full">
                   <Filter className="mr-2 h-4 w-4 opacity-50" />
@@ -172,61 +190,75 @@ const ViewReportsPage = () => {
                 </SelectContent>
               </Select>
             </div>
-            <div className="md:col-start-3">
-              <Button onClick={handleSearch} className="w-full md:w-auto">
-                <SearchIcon className="mr-2 h-4 w-4" /> Search
-              </Button>
-            </div>
+            {/* Removed explicit search button as filtering is now live via useEffect */}
           </div>
         </CardContent>
       </Card>
 
-      <Table>
-        <TableCaption>A list of submitted incident reports. {filteredReports.length === 0 && "No reports match your criteria."}</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Report ID</TableHead>
-            <TableHead>Date Submitted</TableHead>
-            <TableHead>Driver Name</TableHead>
-            <TableHead>Incident Type</TableHead>
-            <TableHead>Company</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filteredReports.map((report) => (
-            <TableRow key={report.id}>
-              <TableCell className="font-medium">{report.id}</TableCell>
-              <TableCell>{report.dateSubmitted}</TableCell>
-              <TableCell>{report.driverName}</TableCell>
-              <TableCell>{report.incidentType}</TableCell>
-              <TableCell>{report.companyName}</TableCell>
-              <TableCell>
-                <span
-                  className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                    report.status === "Pending" ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300" :
-                    report.status === "Reviewed" ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300" :
-                    report.status === "Resolved" ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300" :
-                    report.status === "Rejected" ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300" : ""
-                  }`}
-                >
-                  {report.status}
-                </span>
-              </TableCell>
-              <TableCell className="text-right">
-                <Button variant="outline" size="sm" asChild>
-                  <Link to={`/view-reports/${report.id}`}>
-                    <Eye className="mr-2 h-4 w-4" /> View
-                  </Link>
-                </Button>
-              </TableCell>
+      {isLoadingReports && (
+        <div className="flex justify-center items-center py-10">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="ml-2">Loading reports...</p>
+        </div>
+      )}
+
+      {!isLoadingReports && reportsError && (
+        <div className="text-center py-10 text-red-500">
+          <XCircle className="h-8 w-8 mx-auto mb-2" />
+          <p>Failed to load reports. Please try again later.</p>
+        </div>
+      )}
+      
+      {!isLoadingReports && !reportsError && (
+        <Table>
+          <TableCaption>A list of submitted incident reports. {filteredReports.length === 0 && !isLoadingReports && "No reports match your criteria."}</TableCaption>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Report ID</TableHead>
+              <TableHead>Date Submitted</TableHead>
+              <TableHead>Driver Name</TableHead>
+              <TableHead>Incident Type</TableHead>
+              <TableHead>Company</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {filteredReports.map((report) => (
+              <TableRow key={report.id}>
+                <TableCell className="font-medium">{report.id.substring(0,8)}...</TableCell> {/* Shorten ID for display */}
+                <TableCell>{new Date(report.created_at).toLocaleDateString()}</TableCell>
+                <TableCell>{report.driver_name}</TableCell>
+                <TableCell>{report.incident_type.split('_').map(w => w[0].toUpperCase() + w.slice(1)).join(' ')}</TableCell>
+                <TableCell>{report.company_name_making_report}</TableCell>
+                <TableCell>
+                  <span
+                    className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                      report.status === "Pending" ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300" :
+                      report.status === "Reviewed" ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300" :
+                      report.status === "Resolved" ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300" :
+                      report.status === "Rejected" ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300" : ""
+                    }`}
+                  >
+                    {report.status}
+                  </span>
+                </TableCell>
+                <TableCell className="text-right">
+                  <Button variant="outline" size="sm" asChild>
+                    {/* Placeholder for linking to a detailed report view page, if one exists/is created */}
+                    <Link to={`#`}> {/* /view-reports/${report.id} - this route doesn't exist yet */}
+                      <Eye className="mr-2 h-4 w-4" /> View
+                    </Link>
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
     </div>
   );
 };
 
 export default ViewReportsPage;
+

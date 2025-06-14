@@ -30,15 +30,95 @@ export type Database = {
         }
         Relationships: []
       }
+      reports: {
+        Row: {
+          cdl_number: string
+          company_email_making_report: string | null
+          company_name_making_report: string
+          company_phone_making_report: string | null
+          created_at: string
+          date_occurred: string
+          description: string
+          driver_first_name: string | null
+          driver_last_name: string | null
+          id: string
+          incident_type: Database["public"]["Enums"]["incident_type_enum"]
+          location: string
+          reporter_profile_id: string
+          status: Database["public"]["Enums"]["report_status_enum"]
+          updated_at: string
+        }
+        Insert: {
+          cdl_number: string
+          company_email_making_report?: string | null
+          company_name_making_report: string
+          company_phone_making_report?: string | null
+          created_at?: string
+          date_occurred: string
+          description: string
+          driver_first_name?: string | null
+          driver_last_name?: string | null
+          id?: string
+          incident_type: Database["public"]["Enums"]["incident_type_enum"]
+          location: string
+          reporter_profile_id: string
+          status?: Database["public"]["Enums"]["report_status_enum"]
+          updated_at?: string
+        }
+        Update: {
+          cdl_number?: string
+          company_email_making_report?: string | null
+          company_name_making_report?: string
+          company_phone_making_report?: string | null
+          created_at?: string
+          date_occurred?: string
+          description?: string
+          driver_first_name?: string | null
+          driver_last_name?: string | null
+          id?: string
+          incident_type?: Database["public"]["Enums"]["incident_type_enum"]
+          location?: string
+          reporter_profile_id?: string
+          status?: Database["public"]["Enums"]["report_status_enum"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_reporter_profile_id_fkey"
+            columns: ["reporter_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_current_user_company_name: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
-      [_ in never]: never
+      incident_type_enum:
+        | "aggressive_driving"
+        | "reckless_driving"
+        | "road_rage"
+        | "unsafe_lane_change"
+        | "speeding"
+        | "tailgating"
+        | "distracted_driving"
+        | "failure_to_signal"
+        | "blocking_traffic"
+        | "employment_defaults"
+        | "safety_violations"
+        | "theft_criminal_activities"
+        | "professional_misconduct"
+        | "other"
+      report_status_enum: "Pending" | "Reviewed" | "Resolved" | "Rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -153,6 +233,24 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      incident_type_enum: [
+        "aggressive_driving",
+        "reckless_driving",
+        "road_rage",
+        "unsafe_lane_change",
+        "speeding",
+        "tailgating",
+        "distracted_driving",
+        "failure_to_signal",
+        "blocking_traffic",
+        "employment_defaults",
+        "safety_violations",
+        "theft_criminal_activities",
+        "professional_misconduct",
+        "other",
+      ],
+      report_status_enum: ["Pending", "Reviewed", "Resolved", "Rejected"],
+    },
   },
 } as const
