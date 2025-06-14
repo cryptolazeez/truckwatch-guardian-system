@@ -204,7 +204,7 @@ const AuthPage = () => {
           </Card>
         </TabsContent>
         <TabsContent value="register">
-          <Card className="shadow-lg">
+          <Card className="shadow-lg bg-sky-100">
             <CardHeader>
               <CardTitle>Register for TruckWatch</CardTitle>
               <CardDescription>Create an account to get started.</CardDescription>
