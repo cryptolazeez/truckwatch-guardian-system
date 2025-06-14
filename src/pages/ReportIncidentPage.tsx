@@ -85,10 +85,19 @@ const ReportIncidentPage = () => {
                     <SelectValue placeholder="Select incident type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="employment">Employment Defaults</SelectItem>
-                    <SelectItem value="safety">Safety Violations</SelectItem>
-                    <SelectItem value="theft">Theft/Criminal Activities</SelectItem>
-                    <SelectItem value="misconduct">Professional Misconduct</SelectItem>
+                    <SelectItem value="aggressive_driving">Aggressive Driving</SelectItem>
+                    <SelectItem value="reckless_driving">Reckless Driving</SelectItem>
+                    <SelectItem value="road_rage">Road Rage</SelectItem>
+                    <SelectItem value="unsafe_lane_change">Unsafe Lane Change</SelectItem>
+                    <SelectItem value="speeding">Speeding</SelectItem>
+                    <SelectItem value="tailgating">Tailgating</SelectItem>
+                    <SelectItem value="distracted_driving">Distracted Driving</SelectItem>
+                    <SelectItem value="failure_to_signal">Failure to Signal</SelectItem>
+                    <SelectItem value="blocking_traffic">Blocking Traffic</SelectItem>
+                    <SelectItem value="employment_defaults">Employment Defaults</SelectItem>
+                    <SelectItem value="safety_violations">Safety Violations</SelectItem>
+                    <SelectItem value="theft_criminal_activities">Theft/Criminal Activities</SelectItem>
+                    <SelectItem value="professional_misconduct">Professional Misconduct</SelectItem>
                     <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
