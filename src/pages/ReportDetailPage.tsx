@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -168,14 +167,17 @@ const ReportDetailPage: React.FC = () => {
             <div className="md:col-span-2 border-t pt-6 space-y-4">
               <h3 className="font-semibold text-lg">Moderator Actions</h3>
               <div className="flex flex-wrap gap-2">
-                {(['Pending', 'Resolved', 'Rejected'] as ReportStatus[]).includes(report.status) && (
-                   <Button onClick={() => updateStatusMutation.mutate({ newStatus: 'Reviewed' })} disabled={updateStatusMutation.isPending}>Mark as Reviewed</Button>
+                {report.status === 'Pending' && (
+                  <Button onClick={() => updateStatusMutation.mutate({ newStatus: 'Reviewed' })} disabled={updateStatusMutation.isPending}>Mark as Reviewed</Button>
                 )}
-                {(['Pending', 'Reviewed'] as ReportStatus[]).includes(report.status) && (
-                  <Button onClick={() => updateStatusMutation.mutate({ newStatus: 'Resolved' })} variant="secondary" disabled={updateStatusMutation.isPending}>Mark as Resolved</Button>
+                {(report.status === 'Pending' || report.status === 'Reviewed') && (
+                  <>
+                    <Button onClick={() => updateStatusMutation.mutate({ newStatus: 'Resolved' })} variant="secondary" disabled={updateStatusMutation.isPending}>Approve (Resolve)</Button>
+                    <Button onClick={() => updateStatusMutation.mutate({ newStatus: 'Rejected' })} variant="destructive" disabled={updateStatusMutation.isPending}>Reject</Button>
+                  </>
                 )}
-                {(['Pending', 'Reviewed'] as ReportStatus[]).includes(report.status) && (
-                  <Button onClick={() => updateStatusMutation.mutate({ newStatus: 'Rejected' })} variant="destructive" disabled={updateStatusMutation.isPending}>Mark as Rejected</Button>
+                {(report.status === 'Resolved' || report.status === 'Rejected') && (
+                  <p className="text-sm text-muted-foreground">This report has been finalized. No further actions can be taken.</p>
                 )}
               </div>
             </div>
@@ -187,4 +189,3 @@ const ReportDetailPage: React.FC = () => {
 };
 
 export default ReportDetailPage;
-
