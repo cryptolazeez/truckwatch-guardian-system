@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import LandingPage from "./pages/LandingPage"; // Renamed from Index
 import DriverProfilesPage from "./pages/DriverProfilesPage";
 import ReportIncidentPage from "./pages/ReportIncidentPage";
+import ViewReportsPage from "./pages/ViewReportsPage"; // <-- Added import for the new page
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 import Header from "./components/layout/Header";
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/" element={<LandingPage />} />
             <Route path="/drivers" element={<DriverProfilesPage />} />
             <Route path="/report-incident" element={<ReportIncidentPage />} />
+            <Route path="/view-reports" element={<ViewReportsPage />} /> {/* <-- Added route for ViewReportsPage */}
             <Route path="/auth" element={<AuthPage />} />
             {/* 
               Placeholder routes for privacy and terms, you can create these pages later 
