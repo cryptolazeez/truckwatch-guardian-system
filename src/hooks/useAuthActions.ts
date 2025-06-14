@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,23 +13,60 @@ export const useAuthActions = () => {
 
   const handleLogin = async (values: LoginFormValues) => {
     setIsLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email: values.email,
       password: values.password,
     });
-    setIsLoading(false);
+
     if (error) {
+      setIsLoading(false);
       toast({
         title: "Login Failed",
         description: error.message,
         variant: "destructive",
       });
-    } else {
+      return;
+    }
+
+    if (data.session) {
+      // Fetch user role to redirect correctly
+      const { data: roleData, error: roleError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', data.session.user.id)
+        .maybeSingle();
+
+      setIsLoading(false);
+
+      if (roleError) {
+        toast({
+          title: "Login Error",
+          description: `Failed to verify user role: ${roleError.message}`,
+          variant: "destructive",
+        });
+        // Log them out to be safe
+        await supabase.auth.signOut();
+        return;
+      }
+      
       toast({
         title: "Login Successful",
         description: "Welcome back!",
       });
-      // The session listener in AuthPage will handle navigation to "/"
+
+      const userRole = roleData?.role;
+      if (userRole === 'moderator' || userRole === 'admin') {
+        navigate('/dashboard');
+      } else {
+        navigate('/');
+      }
+    } else {
+        setIsLoading(false);
+        toast({
+            title: "Login Failed",
+            description: "Could not establish a session. Please try again.",
+            variant: "destructive",
+        });
     }
   };
 
@@ -64,7 +102,7 @@ export const useAuthActions = () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/`,
+        redirectTo: `${window.location.origin}/auth`,
       },
     });
     if (error) {
@@ -108,3 +146,4 @@ export const useAuthActions = () => {
     handleLogout, // Export the new logout handler
   };
 };
+

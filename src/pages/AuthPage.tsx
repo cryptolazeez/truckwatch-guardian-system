@@ -1,43 +1,35 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogIn, UserPlus } from "lucide-react";
+import { LogIn, UserPlus, Loader2 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { Session } from "@supabase/supabase-js";
 
 import LoginForm from '@/components/auth/LoginForm';
 import RegisterForm from '@/components/auth/RegisterForm';
 import GoogleLoginButton from '@/components/auth/GoogleLoginButton';
-import { useAuthActions } from '@/hooks/useAuthActions'; // Import the new hook
+import { useAuthActions } from '@/hooks/useAuthActions';
+import { useUserRole } from '@/hooks/useUserRole';
 
 const AuthPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("login");
-  const [session, setSession] = useState<Session | null>(null);
 
   // Use the custom hook for auth actions and isLoading state
   const { isLoading, handleLogin, handleRegister, handleGoogleLogin } = useAuthActions();
+  const { isModerator, isLoading: isRoleLoading, user } = useUserRole();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session) {
-        navigate("/");
+    // This effect handles redirection for users who are already logged in
+    // when they land on the /auth page.
+    if (!isRoleLoading && user) {
+      if (isModerator) {
+        navigate('/dashboard', { replace: true });
+      } else {
+        navigate('/', { replace: true });
       }
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      if (session) {
-        navigate("/");
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
+    }
+  }, [user, isModerator, isRoleLoading, navigate]);
 
   useEffect(() => {
     if (location.hash === "#register") {
@@ -54,11 +46,13 @@ const AuthPage = () => {
     });
   };
 
-  // The handleLogin, handleRegister, and handleGoogleLogin functions are now provided by the useAuthActions hook
-  // isLoading state is also provided by the hook
-
-  if (session && !location.pathname.startsWith("/auth")) {
-    return null; 
+  // Show a loader while checking auth status to prevent content flicker for logged-in users.
+  if (isRoleLoading || user) {
+    return (
+      <div className="flex items-center justify-center min-h-[calc(100vh-150px)]">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
   }
 
   return (
