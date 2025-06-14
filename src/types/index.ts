@@ -44,11 +44,16 @@ export interface ReportListItem {
   company_name_making_report: string;
 }
 
+// Updated Notification interface to align with the database schema
 export interface Notification {
-  id: string;
-  created_at: string;
-  title: string;
-  description: string;
-  is_read: boolean;
-  link?: string; // Optional link for the notification
+  id: string; // UUID from DB
+  title: string; // TEXT NOT NULL from DB
+  description: string; // TEXT NOT NULL from DB (maps from 'message' column)
+  occurred_at: string; // TIMESTAMPTZ NOT NULL from DB (maps from 'notification_time')
+  is_new: boolean; // BOOLEAN DEFAULT TRUE from DB
+  link_to?: string | null; // TEXT from DB
+  logo?: string | null; // TEXT from DB
+  source?: string | null; // TEXT from DB
+  // created_at from DB (record creation time) is not explicitly mapped here for UI simplicity,
+  // occurred_at (notification_time) is used as the primary event timestamp.
 }
