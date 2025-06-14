@@ -65,7 +65,7 @@ const DashboardSidebar = () => {
     name: "Alexis Hill",
     company: "Brainin",
     avatarInitials: "AH",
-    // avatarImage: "/path/to/alexis-avatar.png" // Optional
+    avatarImage: undefined as string | undefined, // Ensure avatarImage property exists
   };
 
   return (
@@ -115,3 +115,4 @@ const DashboardSidebar = () => {
 };
 
 export default DashboardSidebar;
+
