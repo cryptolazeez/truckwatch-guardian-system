@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2, Search, XCircle, User } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
+import BackButton from '@/components/layout/BackButton';
 
 // Function to fetch reports, similar to ViewReportsPage
 const fetchReports = async (): Promise<ReportListItem[]> => {
@@ -160,6 +160,7 @@ const DriverProfilesPage = () => {
 
   return (
     <div className="container mx-auto py-8 px-4 md:px-6">
+      <BackButton />
       <Card className="mb-8 shadow-lg">
         <CardHeader>
           <CardTitle className="flex items-center text-xl">

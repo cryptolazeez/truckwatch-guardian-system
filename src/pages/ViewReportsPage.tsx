@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,6 +10,7 @@ import DriverProfileList from '@/components/reports/DriverProfileList';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, XCircle } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
+import BackButton from '@/components/layout/BackButton';
 
 const reportStatuses: ReportStatusType[] = ["Pending", "Reviewed", "Resolved", "Rejected"];
 
@@ -144,6 +144,7 @@ const ViewReportsPage = () => {
 
   return (
     <div className="container mx-auto py-8 px-4 md:px-6">
+      <BackButton />
       <ReportSearchFilters
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
@@ -196,4 +197,3 @@ const ViewReportsPage = () => {
 };
 
 export default ViewReportsPage;
-
