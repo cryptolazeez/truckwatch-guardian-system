@@ -8,7 +8,6 @@ const navItems = [
   { href: "/", label: "Home", icon: Home },
   { href: "/report-incident", label: "File Complaint", icon: FileText },
   { href: "/view-reports", label: "View Reports", icon: FileSearch },
-  { href: "/moderator", label: "Moderator", icon: Users, alwaysShowIcon: true },
 ];
 
 const AuthButtons = () => (
