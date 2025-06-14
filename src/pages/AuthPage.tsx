@@ -1,36 +1,16 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label"; // Will be replaced by FormLabel
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { LogIn, UserPlus, ChromeIcon } from "lucide-react"; // Added ChromeIcon for Google
+import { LogIn, UserPlus } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Session } from "@supabase/supabase-js";
 
-const loginSchema = z.object({
-  email: z.string().email({ message: "Invalid email address." }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
-});
-
-const registerSchema = z.object({
-  companyName: z.string().optional(),
-  email: z.string().email({ message: "Invalid email address." }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
-  confirmPassword: z.string().min(6, { message: "Password must be at least 6 characters." }),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match.",
-  path: ["confirmPassword"], // path of error
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
-type RegisterFormValues = z.infer<typeof registerSchema>;
+import LoginForm, { LoginFormValues } from '@/components/auth/LoginForm';
+import RegisterForm, { RegisterFormValues } from '@/components/auth/RegisterForm';
+import GoogleLoginButton from '@/components/auth/GoogleLoginButton';
 
 const AuthPage = () => {
   const location = useLocation();
@@ -73,24 +53,6 @@ const AuthPage = () => {
     });
   };
 
-  const loginForm = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
-
-  const registerForm = useForm<RegisterFormValues>({
-    resolver: zodResolver(registerSchema),
-    defaultValues: {
-      companyName: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-    },
-  });
-
   const handleLogin = async (values: LoginFormValues) => {
     setIsLoading(true);
     const { error } = await supabase.auth.signInWithPassword({
@@ -109,7 +71,7 @@ const AuthPage = () => {
         title: "Login Successful",
         description: "Welcome back!",
       });
-      navigate("/"); // Session listener will also handle this, but explicit navigation is fine
+      // navigate("/"); // Session listener will also handle this
     }
   };
 
@@ -120,9 +82,9 @@ const AuthPage = () => {
       password: values.password,
       options: {
         data: {
-          companyName: values.companyName || null, // Pass companyName, ensure it's null if empty
+          companyName: values.companyName || null,
         },
-        emailRedirectTo: `${window.location.origin}/`, // Redirect to home page after email confirmation
+        emailRedirectTo: `${window.location.origin}/`,
       },
     });
     setIsLoading(false);
@@ -137,8 +99,6 @@ const AuthPage = () => {
         title: "Registration Successful",
         description: "Please check your email to confirm your account.",
       });
-      // Keep user on auth page or redirect to a "check your email" page
-      // For now, we stay on the auth page, tab might switch based on URL
     }
   };
 
@@ -147,23 +107,28 @@ const AuthPage = () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/`, // Important: Redirect back to your app's home
+        redirectTo: `${window.location.origin}/`,
       },
     });
-    setIsLoading(false);
+    // setIsLoading(false); // Setting this false might happen before redirect, so user might see button re-enabled briefly.
+                         // Supabase handles redirection, so page will change.
+                         // If there's an error, we show it. Otherwise, redirection occurs.
     if (error) {
+      setIsLoading(false); // Only set loading false if there's an error and no redirect.
       toast({
         title: "Google Login Failed",
         description: error.message,
         variant: "destructive",
       });
     }
-    // No success toast here, as Supabase handles redirection. User will be redirected to Google.
+    // No explicit setIsLoading(false) on success path because redirection should occur.
   };
 
-  if (session) { // if session is already active, redirect immediately
-    return null; // Or a loading spinner
+  if (session && !location.pathname.startsWith("/auth")) { // Redirect if session exists and not on auth page already
+    // This check can be more robust depending on routing setup
+    return null; 
   }
+
 
   return (
     <div className="container mx-auto py-8 px-4 md:px-6 flex items-center justify-center min-h-[calc(100vh-150px)]">
@@ -183,39 +148,7 @@ const AuthPage = () => {
               <CardDescription>Access your company dashboard or driver profile.</CardDescription>
             </CardHeader>
             <CardContent>
-              <Form {...loginForm}>
-                <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4">
-                  <FormField
-                    control={loginForm.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input type="email" placeholder="you@example.com" {...field} disabled={isLoading} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={loginForm.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Password</FormLabel>
-                        <FormControl>
-                          <Input type="password" placeholder="••••••••" {...field} disabled={isLoading} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? "Logging in..." : "Login"}
-                  </Button>
-                </form>
-              </Form>
+              <LoginForm isLoading={isLoading} onSubmit={handleLogin} />
               <div className="relative my-4">
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t" />
@@ -226,10 +159,7 @@ const AuthPage = () => {
                   </span>
                 </div>
               </div>
-              <Button variant="outline" className="w-full" onClick={handleGoogleLogin} disabled={isLoading}>
-                <ChromeIcon className="mr-2 h-4 w-4" /> {/* Using ChromeIcon as a stand-in for Google logo */}
-                {isLoading ? "Redirecting..." : "Sign in with Google"}
-              </Button>
+              <GoogleLoginButton isLoading={isLoading} onClick={handleGoogleLogin} />
                <p className="text-sm text-center text-muted-foreground pt-4">
                 Login functionality is now connected to Supabase.
               </p>
@@ -243,65 +173,7 @@ const AuthPage = () => {
               <CardDescription>Create an account to get started.</CardDescription>
             </CardHeader>
             <CardContent>
-              <Form {...registerForm}>
-                <form onSubmit={registerForm.handleSubmit(handleRegister)} className="space-y-4">
-                  <FormField
-                    control={registerForm.control}
-                    name="companyName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Company Name (Optional)</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Your Company LLC" {...field} disabled={isLoading} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={registerForm.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input type="email" placeholder="you@example.com" {...field} disabled={isLoading} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={registerForm.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Password</FormLabel>
-                        <FormControl>
-                          <Input type="password" placeholder="••••••••" {...field} disabled={isLoading} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={registerForm.control}
-                    name="confirmPassword"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Confirm Password</FormLabel>
-                        <FormControl>
-                          <Input type="password" placeholder="••••••••" {...field} disabled={isLoading} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? "Registering..." : "Register"}
-                  </Button>
-                </form>
-              </Form>
+              <RegisterForm isLoading={isLoading} onSubmit={handleRegister} />
               <p className="text-sm text-center text-muted-foreground pt-4">
                 Registration functionality is now connected to Supabase.
               </p>
