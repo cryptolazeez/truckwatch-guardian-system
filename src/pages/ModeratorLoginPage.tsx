@@ -32,7 +32,7 @@ const ModeratorLoginPage = () => {
             <LogIn className="h-6 w-6" />
           </div>
           <CardTitle>Moderator Login</CardTitle>
-          <CardDescription>Please enter your credentials to access the dashboard.</CardDescription>
+          <CardDescription>Please enter your credentials to access the moderator dashboard.</CardDescription>
         </CardHeader>
         <CardContent>
           <LoginForm isLoading={isLoading} onSubmit={handleLogin} />

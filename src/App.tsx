@@ -10,6 +10,7 @@ import ReportIncidentPage from "./pages/ReportIncidentPage";
 import ViewReportsPage from "./pages/ViewReportsPage";
 import AuthPage from "./pages/AuthPage";
 import ReportDetailPage from "./pages/ReportDetailPage";
+import ReportReviewPage from "./pages/ReportReviewPage";
 import NotFound from "./pages/NotFound";
 import Header from "./components/layout/Header";
 import ModeratorLoginPage from "./pages/ModeratorLoginPage";
@@ -23,9 +24,8 @@ const AppLayout = () => (
   <div className="flex flex-col min-h-screen">
     <Header />
     <main className="flex-grow">
-      <Outlet /> {/* Nested routes will render here */}
+      <Outlet />
     </main>
-    {/* A simple footer could be added here if needed globally, or per page like in LandingPage */}
   </div>
 );
 
@@ -49,6 +49,7 @@ const App = () => (
             <Route element={<ModeratorGuard />}>
               <Route path="/moderator-dashboard" element={<ModeratorDashboardPage />} />
               <Route path="/reports/:id" element={<ReportDetailPage />} />
+              <Route path="/moderator/review/:id" element={<ReportReviewPage />} />
             </Route>
 
           </Route>

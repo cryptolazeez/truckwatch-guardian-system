@@ -18,7 +18,8 @@ const fetchDashboardData = async () => {
 
   const totalReports = reports.length;
   const pendingReviews = reports.filter(r => r.status === 'Pending').length;
-  const publicReports = reports.filter(r => r.status === 'Resolved').length;
+  const resolvedReports = reports.filter(r => r.status === 'Resolved').length;
+  const driverReports = reports.length; // All reports are driver-related in this system
 
   const pendingReportsList: ReportListItem[] = reports
     .filter(r => r.status === 'Pending')
@@ -29,15 +30,13 @@ const fetchDashboardData = async () => {
       date_occurred: r.date_occurred,
       incident_type: r.incident_type,
       company_name_making_report: r.company_name_making_report,
-      // These fields are not in the slimmed down select, but are part of the type.
-      // They are not needed for the pending reports table.
       cdl_number: '',
       created_at: r.created_at,
       description: '',
       status: 'Pending',
     }));
 
-  return { totalReports, pendingReviews, publicReports, pendingReportsList };
+  return { totalReports, pendingReviews, resolvedReports, driverReports, pendingReportsList };
 };
 
 const ModeratorDashboardPage: React.FC = () => {
@@ -65,14 +64,14 @@ const ModeratorDashboardPage: React.FC = () => {
           <ShieldAlert className="mr-3 h-8 w-8 text-primary" />
           Moderator Dashboard
         </h1>
-        <p className="text-muted-foreground">Welcome! Here's an overview of the reports.</p>
+        <p className="text-muted-foreground">Review and manage trucking safety reports.</p>
       </header>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
         <DashboardStatCard title="Total Reports" value={data?.totalReports ?? 0} icon={FileText} />
-        <DashboardStatCard title="Driver Reports" value={data?.totalReports ?? 0} icon={FileText} />
+        <DashboardStatCard title="Driver Reports" value={data?.driverReports ?? 0} icon={FileText} />
         <DashboardStatCard title="Pending Reviews" value={data?.pendingReviews ?? 0} icon={Clock} />
-        <DashboardStatCard title="Public Reports" value={data?.publicReports ?? 0} icon={CheckCircle} />
+        <DashboardStatCard title="Resolved Reports" value={data?.resolvedReports ?? 0} icon={CheckCircle} />
       </div>
 
       <Card>

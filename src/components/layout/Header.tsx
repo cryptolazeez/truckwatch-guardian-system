@@ -1,26 +1,25 @@
 
 import { Link } from "react-router-dom";
-import { Users, FileText, Menu, Home, FileSearch, Truck, ShieldAlert } from "lucide-react"; // Removed LogIn as it's not used
+import { Users, FileText, Menu, Home, FileSearch, Truck, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState, useEffect } from "react";
 import { supabase } from '@/integrations/supabase/client';
 import { Session } from '@supabase/supabase-js';
+import { useUserRole } from '@/hooks/useUserRole';
 
 interface NavItemType {
   href: string;
   label: string;
   icon: React.ElementType;
   alwaysShowIcon?: boolean;
-  // requiresAuth?: boolean; // No longer needed as dashboard link is removed
 }
-
-// Removed the initial navItems array as commonNavItems serves the purpose
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoadingSession, setIsLoadingSession] = useState(true);
+  const { isModerator } = useUserRole();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -42,17 +41,13 @@ const Header = () => {
     { href: "/view-reports", label: "View Reports", icon: FileSearch },
   ];
 
-  // Removed dashboardNavItem
-  // const dashboardNavItem: NavItemType = { href: "/dashboard", label: "Dashboard", icon: ShieldAlert, requiresAuth: true };
-
-  // displayedNavItems will now always be commonNavItems
   const displayedNavItems = commonNavItems;
 
   const AuthButtons = () => {
     if (isLoadingSession) {
       return <Button variant="outline" disabled>Loading...</Button>;
     }
-    if (session) {
+    if (session && isModerator) {
       return (
         <Button variant="outline" asChild>
           <Link to="/moderator-dashboard">
@@ -122,7 +117,7 @@ const Header = () => {
                     label={item.label} 
                     icon={item.icon} 
                     onClick={() => setMobileMenuOpen(false)} 
-                    alwaysShowIcon // Always show icon in mobile menu
+                    alwaysShowIcon
                   />
                 ))}
                 <div className="mt-4 pt-4 border-t border-border/40">

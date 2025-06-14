@@ -46,7 +46,7 @@ const PendingReportsTable: React.FC<PendingReportsTableProps> = ({ reports }) =>
               </TableCell>
               <TableCell className="text-right">
                 <Button asChild size="sm">
-                  <Link to={`/reports/${report.id}`}>Review</Link>
+                  <Link to={`/moderator/review/${report.id}`}>Review</Link>
                 </Button>
               </TableCell>
             </TableRow>
