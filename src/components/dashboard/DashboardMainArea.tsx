@@ -1,10 +1,8 @@
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { ReportListItem, IncidentType, ReportStatus as ReportStatusType } from '@/types';
 import AnalyticsChart from './AnalyticsChart';
-// CampaignsList is removed
 import NotificationsWidget from './NotificationsWidget';
 import MiniCalendarWidget from './MiniCalendarWidget';
 import UserProfileWidget from './UserProfileWidget';
@@ -12,6 +10,7 @@ import DashboardStatCard from './DashboardStatCard';
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ListChecks, Hourglass, UserCheck, CheckCircle2, Eye, Loader2 } from "lucide-react";
+import { format } from 'date-fns';
 
 const fetchDashboardReports = async (): Promise<ReportListItem[]> => {
   const { data, error } = await supabase
@@ -42,9 +41,46 @@ const fetchDashboardReports = async (): Promise<ReportListItem[]> => {
   }));
 };
 
+const processReportsForLastNMonths = (reportsToProcess: ReportListItem[], N: number = 6) => {
+  if (!reportsToProcess) return [];
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const monthlyData: { name: string, value: number }[] = [];
+  const today = new Date();
+
+  for (let i = N - 1; i >= 0; i--) {
+    const targetDate = new Date(today.getFullYear(), today.getMonth() - i, 1);
+    const monthName = monthNames[targetDate.getMonth()];
+    const year = targetDate.getFullYear();
+    // Format as "Mon 'YY" e.g., "Jun '25"
+    const monthKey = `${monthName} '${String(year).slice(2)}`; 
+
+    const count = reportsToProcess.filter(report => {
+      const reportDate = new Date(report.created_at);
+      return reportDate.getFullYear() === targetDate.getFullYear() && reportDate.getMonth() === targetDate.getMonth();
+    }).length;
+
+    monthlyData.push({ name: monthKey, value: count });
+  }
+  return monthlyData;
+};
+
 const DashboardMainArea = () => {
-  const userName = "Alexis"; // Hardcoded
-  const currentDate = "Monday, May 06, 2021"; // Hardcoded & Translated
+  const [userName, setUserName] = useState("User");
+  const currentDate = format(new Date(), "EEEE, MMMM dd, yyyy");
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user?.email) {
+        const emailPart = session.user.email.split('@')[0];
+        // Capitalize first letter
+        setUserName(emailPart.charAt(0).toUpperCase() + emailPart.slice(1));
+      } else if (session?.user) {
+        setUserName("Valued User"); // Fallback if email is not available but user exists
+      }
+    };
+    fetchUser();
+  }, []);
 
   const { data: reports = [], isLoading: isLoadingReports, error: reportsError } = useQuery<ReportListItem[], Error>({
     queryKey: ['dashboardReports'],
@@ -55,6 +91,8 @@ const DashboardMainArea = () => {
   const pendingReportsCount = reports.filter(r => r.status === "Pending").length;
   const reviewedReportsCount = reports.filter(r => r.status === "Reviewed").length;
   const resolvedReportsCount = reports.filter(r => r.status === "Resolved").length;
+
+  const chartData = processReportsForLastNMonths(reports, 6);
 
   return (
     <div className="flex-1 bg-slate-100 p-6 overflow-y-auto">
@@ -123,13 +161,21 @@ const DashboardMainArea = () => {
               </div>
             )}
             
-            {/* AnalyticsChart is kept, but will need relevant data */}
-            <h3 className="text-lg font-semibold text-gray-700 mt-6 mb-2">Report Trends (Placeholder)</h3>
-            <AnalyticsChart /> 
-            <p className="text-xs text-gray-500 mt-2">Note: Chart data needs to be updated to reflect report trends.</p>
+            <h3 className="text-lg font-semibold text-gray-700 mt-6 mb-2">Report Trends (Last 6 Months)</h3>
+            {isLoadingReports ? (
+               <div className="flex justify-center items-center h-[250px]">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="ml-2">Loading chart data...</p>
+              </div>
+            ) : reportsError ? (
+              <div className="flex justify-center items-center h-[250px] text-red-500">
+                <p>Failed to load chart data.</p>
+              </div>
+            ) : (
+              <AnalyticsChart data={chartData} />
+            )}
+            <p className="text-xs text-gray-500 mt-2">Note: Chart displays total reports submitted each month.</p>
           </div>
-
-          {/* CampaignsList component is removed */}
         </div>
 
         {/* Right gutter/aside */}
@@ -144,4 +190,3 @@ const DashboardMainArea = () => {
 };
 
 export default DashboardMainArea;
-
