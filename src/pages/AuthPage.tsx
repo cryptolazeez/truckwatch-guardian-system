@@ -10,43 +10,34 @@ import { Session } from "@supabase/supabase-js";
 import LoginForm from '@/components/auth/LoginForm';
 import RegisterForm from '@/components/auth/RegisterForm';
 import GoogleLoginButton from '@/components/auth/GoogleLoginButton';
-import { useAuthActions } from '@/hooks/useAuthActions';
+import { useAuthActions } from '@/hooks/useAuthActions'; // Import the new hook
 
 const AuthPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("login");
-  const [currentSession, setCurrentSession] = useState<Session | null>(null); // Renamed 'session' to 'currentSession' for clarity
+  const [session, setSession] = useState<Session | null>(null);
 
+  // Use the custom hook for auth actions and isLoading state
   const { isLoading, handleLogin, handleRegister, handleGoogleLogin } = useAuthActions();
 
   useEffect(() => {
-    const searchParams = new URLSearchParams(location.search);
-    // Default to '/' if no redirect param, or if redirect is to /auth itself to prevent loops
-    let redirectPath = searchParams.get('redirect') || '/';
-    if (redirectPath.startsWith('/auth')) {
-      redirectPath = '/';
-    }
-
-    const handleAuthSession = (session: Session | null) => {
-      setCurrentSession(session);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
       if (session) {
-        navigate(redirectPath);
+        navigate("/");
       }
-    };
-
-    // Check current session status
-    supabase.auth.getSession().then(({ data: { session: supabaseSession } }) => {
-      handleAuthSession(supabaseSession);
     });
 
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, authChangeEventSession) => {
-      handleAuthSession(authChangeEventSession);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (session) {
+        navigate("/");
+      }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate, location.search]); // Added location.search as a dependency
+  }, [navigate]);
 
   useEffect(() => {
     if (location.hash === "#register") {
@@ -63,11 +54,11 @@ const AuthPage = () => {
     });
   };
 
-  // If there's a session and the user is not on an /auth path (e.g. navigated back),
-  // this component shouldn't render. The effect above should handle navigation.
-  // This condition helps prevent briefly rendering AuthPage if already logged in.
-  if (currentSession && !location.pathname.startsWith("/auth")) {
-    return null;
+  // The handleLogin, handleRegister, and handleGoogleLogin functions are now provided by the useAuthActions hook
+  // isLoading state is also provided by the hook
+
+  if (session && !location.pathname.startsWith("/auth")) {
+    return null; 
   }
 
   return (
@@ -125,4 +116,3 @@ const AuthPage = () => {
   );
 };
 export default AuthPage;
-

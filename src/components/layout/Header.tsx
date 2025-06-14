@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { Users, FileText, Menu, Home, FileSearch, Truck, ShieldAlert } from "lucide-react";
+import { Users, FileText, Menu, Home, FileSearch, Truck, ShieldAlert } from "lucide-react"; // Removed LogIn as it's not used
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState, useEffect } from "react";
@@ -12,7 +12,10 @@ interface NavItemType {
   label: string;
   icon: React.ElementType;
   alwaysShowIcon?: boolean;
+  // requiresAuth?: boolean; // No longer needed as dashboard link is removed
 }
+
+// Removed the initial navItems array as commonNavItems serves the purpose
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -20,13 +23,13 @@ const Header = () => {
   const [isLoadingSession, setIsLoadingSession] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session: supabaseSession } }) => {
-      setSession(supabaseSession);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
       setIsLoadingSession(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, authChangeEventSession) => {
-      setSession(authChangeEventSession);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
       setIsLoadingSession(false);
     });
 
@@ -39,6 +42,10 @@ const Header = () => {
     { href: "/view-reports", label: "View Reports", icon: FileSearch },
   ];
 
+  // Removed dashboardNavItem
+  // const dashboardNavItem: NavItemType = { href: "/dashboard", label: "Dashboard", icon: ShieldAlert, requiresAuth: true };
+
+  // displayedNavItems will now always be commonNavItems
   const displayedNavItems = commonNavItems;
 
   const AuthButtons = () => {
@@ -48,8 +55,8 @@ const Header = () => {
     if (session) {
       return (
         <Button variant="outline" asChild>
-          <Link to="/dashboard">
-            <ShieldAlert className="mr-2 h-4 w-4" /> Dashboard
+          <Link to="/dashboard"> {/* This still correctly links to /dashboard */}
+            <ShieldAlert className="mr-2 h-4 w-4" /> Moderator Login
           </Link>
         </Button>
       );
@@ -119,7 +126,7 @@ const Header = () => {
                   />
                 ))}
                 <div className="mt-4 pt-4 border-t border-border/40">
-                  <AuthButtons /> {/* AuthButtons will now show updated text here too */}
+                  <AuthButtons />
                 </div>
               </nav>
             </SheetContent>
@@ -131,4 +138,3 @@ const Header = () => {
 };
 
 export default Header;
-
