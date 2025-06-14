@@ -24,9 +24,8 @@ const reportIncidentSchema = z.object({
   driverEmail: z.string().email("Invalid email address").optional().or(z.literal('')),
   driverPhone: z.string().optional(),
   
-  // Use the enum definition from Constants for Zod validation
   incidentType: z.enum(Constants.public.Enums.incident_type_enum, { required_error: "Incident type is required" }),
-  dateOccurred: z.string().min(1, "Date occurred is required"), // Consider z.date() if using a date picker that provides Date object
+  dateOccurred: z.string().min(1, "Date occurred is required"),
   location: z.string().min(1, "Location is required"),
   incidentDescription: z.string().min(1, "Description is required"),
   
@@ -44,19 +43,19 @@ interface UserProfile {
 
 const ReportIncidentPage = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  // userProfile state can still be used to store profile if user is logged in
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null); 
   const { toast } = useToast();
 
   const { register, handleSubmit, control, formState: { errors }, reset, setValue } = useForm<ReportIncidentFormValues>({
     resolver: zodResolver(reportIncidentSchema),
     defaultValues: { 
-      // incidentType is now correctly typed via the schema
       incidentType: undefined, 
     },
   });
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
+    const fetchUserProfileAndPrePopulate = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const { data: profile, error } = await supabase
@@ -66,47 +65,50 @@ const ReportIncidentPage = () => {
           .single();
         
         if (error) {
-          console.error('Error fetching profile:', error);
-          toast({ title: "Error", description: "Could not fetch your profile.", variant: "destructive" });
+          console.error('Error fetching profile for pre-population:', error);
+          // Optionally, inform user if profile fetch fails for a logged-in user, but don't block.
+          // toast({ title: "Profile Info", description: "Could not pre-fill company info from your profile.", variant: "default" });
         } else if (profile) {
-          setUserProfile(profile);
+          setUserProfile(profile); // Store profile if fetched
           if (profile.company_name) {
              setValue('companyName', profile.company_name, { shouldValidate: true });
           }
         }
-      } else {
-        // If "open source" where login is not compulsory, this part needs rethinking.
-        // For now, keeping it as is, will address after SQL changes for open access.
-        toast({ title: "Authentication Required", description: "Please log in to report an incident.", variant: "destructive" });
       }
+      // No 'else' block needed to enforce login or show auth required toast
     };
-    fetchUserProfile();
-  }, [toast, setValue]);
+    fetchUserProfileAndPrePopulate();
+  }, [toast, setValue]); // userProfile removed from dependency array as it's set within this effect
 
   const onSubmit = async (values: ReportIncidentFormValues) => {
-    // This check will need to be adjusted if anonymous submissions are allowed
-    if (!userProfile) {
-      toast({ title: "Error", description: "User profile not loaded. Cannot submit report.", variant: "destructive" });
-      return;
-    }
     setIsLoading(true);
+    
+    // Attempt to get current user for reporter_profile_id
+    // This does not require userProfile state to be set from useEffect
+    let currentUserId: string | null = null;
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    if (authUser) {
+      currentUserId = authUser.id;
+    }
+
     try {
       const reportData = {
-        reporter_profile_id: userProfile.id, // This field will be problematic if anonymous
+        reporter_profile_id: currentUserId, // Will be null if no user is logged in
         driver_first_name: values.driverFirstName,
         driver_last_name: values.driverLastName,
         cdl_number: values.cdlNumber,
-        incident_type: values.incidentType, // This is now correctly typed
+        driver_email: values.driverEmail, // Added missing driver_email
+        driver_phone: values.driverPhone, // Added missing driver_phone
+        incident_type: values.incidentType,
         date_occurred: values.dateOccurred,
         location: values.location,
         description: values.incidentDescription,
-        company_name_making_report: values.companyName,
+        company_name_making_report: values.companyName, // This is required from the form
         company_phone_making_report: values.companyPhone,
         company_email_making_report: values.companyEmail,
         // status is defaulted to 'Pending' by the database
       };
 
-      // The insert call should now work as values.incidentType is correctly typed
       const { error } = await supabase.from('reports').insert([reportData]);
 
       if (error) {
@@ -115,6 +117,14 @@ const ReportIncidentPage = () => {
 
       toast({ title: "Success", description: "Incident report submitted successfully." });
       reset(); 
+      // If a logged-in user submitted, their company name might have been pre-filled.
+      // If they change it and submit, then reset, it should reset to blank or pre-fill again if they are still logged in.
+      // For truly anonymous, it just resets.
+      // If there was a logged-in user and they have a company_name, re-populate it after reset.
+      if (userProfile && userProfile.company_name) {
+        setValue('companyName', userProfile.company_name, { shouldValidate: true });
+      }
+
     } catch (error: any) {
       console.error("Error submitting report:", error);
       toast({ title: "Submission Failed", description: error.message || "Could not submit the report.", variant: "destructive" });
@@ -208,7 +218,6 @@ const ReportIncidentPage = () => {
                         <SelectValue placeholder="Select incident type" />
                       </SelectTrigger>
                       <SelectContent>
-                        {/* Use incidentTypesForSelect (from Constants) for populating */}
                         {incidentTypesForSelect.map(type => (
                           <SelectItem key={type} value={type}>
                             {type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}

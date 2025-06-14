@@ -44,7 +44,7 @@ export type Database = {
           id: string
           incident_type: Database["public"]["Enums"]["incident_type_enum"]
           location: string
-          reporter_profile_id: string
+          reporter_profile_id: string | null
           status: Database["public"]["Enums"]["report_status_enum"]
           updated_at: string
         }
@@ -61,7 +61,7 @@ export type Database = {
           id?: string
           incident_type: Database["public"]["Enums"]["incident_type_enum"]
           location: string
-          reporter_profile_id: string
+          reporter_profile_id?: string | null
           status?: Database["public"]["Enums"]["report_status_enum"]
           updated_at?: string
         }
@@ -78,7 +78,7 @@ export type Database = {
           id?: string
           incident_type?: Database["public"]["Enums"]["incident_type_enum"]
           location?: string
-          reporter_profile_id?: string
+          reporter_profile_id?: string | null
           status?: Database["public"]["Enums"]["report_status_enum"]
           updated_at?: string
         }
