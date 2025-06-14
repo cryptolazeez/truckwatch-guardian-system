@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -10,8 +9,11 @@ import UserProfileWidget from './UserProfileWidget';
 import DashboardStatCard from './DashboardStatCard';
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ListChecks, Hourglass, UserCheck, CheckCircle2, Eye, Loader2, Users } from "lucide-react";
+import { ListChecks, Hourglass, UserCheck, CheckCircle2, Eye, Loader2, Users, Search } from "lucide-react";
 import { format } from 'date-fns';
+import { useUserRole } from '@/hooks/useUserRole';
+import ModeratorWorkflowGuide from './ModeratorWorkflowGuide';
+import PendingReportsTable from './PendingReportsTable';
 
 const fetchDashboardReports = async (): Promise<ReportListItem[]> => {
   const { data, error } = await supabase
@@ -78,6 +80,7 @@ const processReportsForLastNMonths = (reportsToProcess: ReportListItem[], N: num
 const DashboardMainArea = () => {
   const [userName, setUserName] = useState("User");
   const currentDate = format(new Date(), "EEEE, MMMM dd, yyyy");
+  const { isModerator, isLoading: isLoadingRole } = useUserRole();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -98,8 +101,9 @@ const DashboardMainArea = () => {
     queryFn: fetchDashboardReports,
   });
 
+  const pendingReports = reports.filter(r => r.status === "Pending");
   const totalReports = reports.length;
-  const pendingReportsCount = reports.filter(r => r.status === "Pending").length;
+  const pendingReportsCount = pendingReports.length;
   const reviewedReportsCount = reports.filter(r => r.status === "Reviewed").length;
   const resolvedReportsCount = reports.filter(r => r.status === "Resolved").length;
 
@@ -115,6 +119,37 @@ const DashboardMainArea = () => {
             <h1 className="text-3xl font-bold text-gray-800">Good morning, {userName}!</h1>
             <p className="text-sm text-gray-500">{currentDate}</p>
           </div>
+
+          {/* Moderator Workflow Section - ONLY for moderators/admins */}
+          {(isLoadingRole) ? (
+             <div className="flex justify-center items-center py-10">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+          ) : isModerator && (
+            <div className="bg-card p-6 rounded-lg shadow space-y-6">
+               <h2 className="text-xl font-semibold text-gray-700">Moderator Action Center</h2>
+               <div className="grid gap-8 lg:grid-cols-5">
+                  <div className="lg:col-span-3">
+                    <h3 className="text-lg font-semibold text-gray-700 mb-4">Pending Review ({pendingReports.length})</h3>
+                    {isLoadingReports ? (
+                      <div className="flex justify-center items-center py-10 rounded-lg border-2 border-dashed">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                        <p className="ml-2">Loading pending reports...</p>
+                      </div>
+                    ) : reportsError ? (
+                       <div className="text-center py-10 text-red-500 rounded-lg border-2 border-dashed border-red-200">
+                         <p>Failed to load reports.</p>
+                       </div>
+                    ) : (
+                      <PendingReportsTable reports={pendingReports} />
+                    )}
+                  </div>
+                  <div className="lg:col-span-2">
+                    <ModeratorWorkflowGuide />
+                  </div>
+               </div>
+            </div>
+          )}
 
           {/* Report Overview Section */}
           <div className="bg-muted p-6 rounded-lg shadow">
@@ -189,7 +224,7 @@ const DashboardMainArea = () => {
             
             <h3 className="text-lg font-semibold text-gray-700 mt-6 mb-2">Report Trends (Last 6 Months)</h3>
             {isLoadingReports ? (
-               <div className="flex justify-center items-center h-[250px]">
+              <div className="flex justify-center items-center h-[250px]">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 <p className="ml-2">Loading chart data...</p>
               </div>
