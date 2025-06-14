@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -82,10 +81,30 @@ export const useAuthActions = () => {
     // For now, we only explicitly set isLoading false on error.
   };
 
+  const handleLogout = async () => {
+    setIsLoading(true);
+    const { error } = await supabase.auth.signOut();
+    setIsLoading(false);
+    if (error) {
+      toast({
+        title: "Logout Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Logout Successful",
+        description: "You have been logged out.",
+      });
+      navigate('/auth'); // Redirect to login page after logout
+    }
+  };
+
   return {
     isLoading,
     handleLogin,
     handleRegister,
     handleGoogleLogin,
+    handleLogout, // Export the new logout handler
   };
 };

@@ -1,9 +1,11 @@
-
 import React, { useState, useEffect } from 'react';
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"; // AvatarImage removed as it's not used
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
+import { useAuthActions } from '@/hooks/useAuthActions';
+import { Button } from '@/components/ui/button';
+import { LogOut } from 'lucide-react';
 
 interface UserProfileData {
   name: string;
@@ -14,16 +16,16 @@ interface UserProfileData {
 const UserProfileWidget = () => {
   const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);
   const [loading, setLoading] = useState(true);
+  const { handleLogout, isLoading: isAuthLoading } = useAuthActions();
 
   useEffect(() => {
     const fetchAndSetUserProfile = async (currentUser: User | null) => {
       if (currentUser && currentUser.email) {
-        // Fetch company name from profiles table
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('company_name')
           .eq('id', currentUser.id)
-          .maybeSingle(); // Use maybeSingle to handle cases where profile might not exist
+          .maybeSingle();
 
         if (profileError) {
           console.error("Error fetching profile:", profileError.message);
@@ -49,7 +51,7 @@ const UserProfileWidget = () => {
           company: profileData?.company_name || 'N/A',
           avatarInitials: initials,
         });
-      } else if (currentUser) { // User exists but no email (e.g. phone auth)
+      } else if (currentUser) { 
         setUserProfile({
             name: "User",
             company: "N/A",
@@ -57,12 +59,11 @@ const UserProfileWidget = () => {
         });
         console.warn("User does not have an email associated with their account.");
       } else {
-        setUserProfile(null); // Clear profile if no user
+        setUserProfile(null); 
       }
       setLoading(false);
     };
 
-    // Initial fetch of session
     supabase.auth.getSession().then(({ data: { session } }) => {
       fetchAndSetUserProfile(session?.user || null);
     }).catch(error => {
@@ -70,7 +71,6 @@ const UserProfileWidget = () => {
       setLoading(false);
     });
 
-    // Listen for auth changes
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       setLoading(true);
       fetchAndSetUserProfile(session?.user || null);
@@ -95,8 +95,6 @@ const UserProfileWidget = () => {
   }
 
   if (!userProfile) {
-    // This state might be briefly visible if auth state changes to logged out
-    // or if initial session fetch fails and results in no user.
     return (
       <div className="bg-white p-4 rounded-lg shadow flex items-center space-x-3">
         <Avatar className="h-12 w-12">
@@ -113,14 +111,23 @@ const UserProfileWidget = () => {
   return (
     <div className="bg-white p-4 rounded-lg shadow flex items-center space-x-3">
       <Avatar className="h-12 w-12">
-        {/* <AvatarImage src="/path-to-avatar.png" alt={userProfile.name} /> */}
         <AvatarFallback className="bg-gray-200 text-gray-700 text-xl">{userProfile.avatarInitials}</AvatarFallback>
       </Avatar>
-      <div>
+      <div className="flex-1">
         <h3 className="font-semibold text-gray-800">{userProfile.name}</h3>
         <p className="text-sm text-gray-500">{userProfile.company}</p>
         <Link to="#" className="text-xs text-primary hover:underline">Account &gt;</Link>
       </div>
+      <Button 
+        variant="ghost" 
+        size="icon" 
+        onClick={handleLogout} 
+        disabled={isAuthLoading}
+        aria-label="Log out"
+        className="text-muted-foreground hover:text-destructive"
+      >
+        <LogOut className="h-5 w-5" />
+      </Button>
     </div>
   );
 };
