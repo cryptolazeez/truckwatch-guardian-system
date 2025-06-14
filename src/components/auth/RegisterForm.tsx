@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -24,77 +23,16 @@ interface RegisterFormProps {
   onSubmit: (values: RegisterFormValues) => Promise<void>;
 }
 
-const RegisterForm: React.FC<RegisterFormProps> = ({ isLoading, onSubmit }) => {
-  const form = useForm<RegisterFormValues>({
-    resolver: zodResolver(registerSchema),
-    defaultValues: {
-      companyName: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-    },
-  });
-
+const RegisterForm: React.FC<RegisterFormProps> = () => {
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="companyName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Company Name (Optional)</FormLabel>
-              <FormControl>
-                <Input placeholder="Your Company LLC" {...field} value={field.value ?? ""} disabled={isLoading} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input type="email" placeholder="you@example.com" {...field} disabled={isLoading} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input type="password" placeholder="••••••••" {...field} disabled={isLoading} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="confirmPassword"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Confirm Password</FormLabel>
-              <FormControl>
-                <Input type="password" placeholder="••••••••" {...field} disabled={isLoading} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Registering..." : "Register"}
-        </Button>
-      </form>
-    </Form>
+    <div className="text-center p-4 border rounded-lg bg-muted">
+      <h3 className="text-lg font-semibold">Registration Disabled</h3>
+      <p className="text-sm text-muted-foreground mt-2">
+        Public registration is not available at this time.
+        <br />
+        To get an account, please contact an administrator.
+      </p>
+    </div>
   );
 };
 
