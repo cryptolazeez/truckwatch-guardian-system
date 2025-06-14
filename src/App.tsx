@@ -8,7 +8,6 @@ import DriverProfilesPage from "./pages/DriverProfilesPage";
 import ReportIncidentPage from "./pages/ReportIncidentPage";
 import ViewReportsPage from "./pages/ViewReportsPage";
 import AuthPage from "./pages/AuthPage";
-import DashboardPage from "./pages/DashboardPage"; // <-- Added import for DashboardPage
 import ReportDetailPage from "./pages/ReportDetailPage";
 import NotFound from "./pages/NotFound";
 import Header from "./components/layout/Header";
@@ -38,7 +37,6 @@ const App = () => (
             <Route path="/report-incident" element={<ReportIncidentPage />} />
             <Route path="/view-reports" element={<ViewReportsPage />} />
             <Route path="/auth" element={<AuthPage />} />
-            <Route path="/dashboard" element={<DashboardPage />} /> {/* <-- Added route for DashboardPage */}
             <Route path="/reports/:id" element={<ReportDetailPage />} />
             {/* 
               Placeholder routes for privacy and terms, you can create these pages later 
