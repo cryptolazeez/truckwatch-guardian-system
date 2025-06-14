@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Report, ReportListItem, ReportStatus as ReportStatusType, IncidentType } from '@/types'; // Assuming types.ts is created
+import { ReportListItem, ReportStatus as ReportStatusType, IncidentType } from '@/types';
 import {
   Table,
   TableHeader,
@@ -22,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Eye, FileSearch, Search as SearchIcon, Filter, ListChecks, Hourglass, CheckCircle2, XCircle, UserCheck, Loader2 } from "lucide-react";
+import { Eye, FileSearch, Search as SearchIcon, Filter, ListChecks, Hourglass, XCircle, UserCheck, Loader2, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
 import DashboardStatCard from "@/components/dashboard/DashboardStatCard";
 import { useToast } from '@/hooks/use-toast';
@@ -52,8 +51,8 @@ const fetchReports = async (): Promise<ReportListItem[]> => {
     id: report.id,
     created_at: report.created_at,
     driver_name: `${report.driver_first_name || ''} ${report.driver_last_name || ''}`.trim() || 'N/A',
-    incident_type: report.incident_type as IncidentType, // Cast as Supabase might return string
-    status: report.status as ReportStatusType, // Cast
+    incident_type: report.incident_type as IncidentType, 
+    status: report.status as ReportStatusType, 
     company_name_making_report: report.company_name_making_report,
   }));
 };
@@ -94,16 +93,11 @@ const ViewReportsPage = () => {
     setFilteredReports(reportsToFilter);
   }, [searchTerm, selectedStatus, allReports]);
 
-
-  // Calculate summary statistics from allReports (not filteredReports)
   const totalReports = allReports.length;
   const pendingReportsCount = allReports.filter(r => r.status === "Pending").length;
   const reviewedReportsCount = allReports.filter(r => r.status === "Reviewed").length;
-  const resolvedReportsCount = allReports.filter(r => r.status === "Resolved").length;
-  // const rejectedReportsCount = allReports.filter(r => r.status === "Rejected").length; // If needed
-
-  // No explicit handleSearch button needed if useEffect handles filtering live.
-  // If button is preferred, move filtering logic into a handleSearch function called by button and useEffect.
+  // const resolvedReportsCount = allReports.filter(r => r.status === "Resolved").length; // Removed
+  // const rejectedReportsCount = allReports.filter(r => r.status === "Rejected").length;
 
   return (
     <div className="container mx-auto py-8 px-4 md:px-6">
@@ -118,7 +112,7 @@ const ViewReportsPage = () => {
       </div>
 
       {/* Dashboard Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-8">
         <DashboardStatCard 
           title="Total Reports" 
           value={totalReports} 
@@ -138,13 +132,6 @@ const ViewReportsPage = () => {
           icon={UserCheck} 
           iconColor="text-blue-500"
           description={`${reviewedReportsCount} reports have been reviewed`}
-        />
-        <DashboardStatCard 
-          title="Resolved Reports" 
-          value={resolvedReportsCount} 
-          icon={CheckCircle2} 
-          iconColor="text-green-500"
-          description={`${resolvedReportsCount} reports successfully closed`}
         />
       </div>
 
@@ -190,7 +177,6 @@ const ViewReportsPage = () => {
                 </SelectContent>
               </Select>
             </div>
-            {/* Removed explicit search button as filtering is now live via useEffect */}
           </div>
         </CardContent>
       </Card>
@@ -226,7 +212,7 @@ const ViewReportsPage = () => {
           <TableBody>
             {filteredReports.map((report) => (
               <TableRow key={report.id}>
-                <TableCell className="font-medium">{report.id.substring(0,8)}...</TableCell> {/* Shorten ID for display */}
+                <TableCell className="font-medium">{report.id.substring(0,8)}...</TableCell>
                 <TableCell>{new Date(report.created_at).toLocaleDateString()}</TableCell>
                 <TableCell>{report.driver_name}</TableCell>
                 <TableCell>{report.incident_type.split('_').map(w => w[0].toUpperCase() + w.slice(1)).join(' ')}</TableCell>
@@ -245,8 +231,7 @@ const ViewReportsPage = () => {
                 </TableCell>
                 <TableCell className="text-right">
                   <Button variant="outline" size="sm" asChild>
-                    {/* Placeholder for linking to a detailed report view page, if one exists/is created */}
-                    <Link to={`#`}> {/* /view-reports/${report.id} - this route doesn't exist yet */}
+                    <Link to={`#`}> 
                       <Eye className="mr-2 h-4 w-4" /> View
                     </Link>
                   </Button>
@@ -261,4 +246,3 @@ const ViewReportsPage = () => {
 };
 
 export default ViewReportsPage;
-

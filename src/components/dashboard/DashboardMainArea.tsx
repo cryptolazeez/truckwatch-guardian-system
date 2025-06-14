@@ -9,7 +9,7 @@ import UserProfileWidget from './UserProfileWidget';
 import DashboardStatCard from './DashboardStatCard';
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ListChecks, Hourglass, UserCheck, CheckCircle2, Eye, Loader2 } from "lucide-react";
+import { ListChecks, Hourglass, UserCheck, MapPin, Eye, Loader2 } from "lucide-react";
 import { format } from 'date-fns';
 
 const fetchDashboardReports = async (): Promise<ReportListItem[]> => {
@@ -90,25 +90,24 @@ const DashboardMainArea = () => {
   const totalReports = reports.length;
   const pendingReportsCount = reports.filter(r => r.status === "Pending").length;
   const reviewedReportsCount = reports.filter(r => r.status === "Reviewed").length;
-  const resolvedReportsCount = reports.filter(r => r.status === "Resolved").length;
 
   const chartData = processReportsForLastNMonths(reports, 6);
 
   return (
-    <div className="flex-1 bg-slate-100 p-6 overflow-y-auto">
+    <div className="flex-1 bg-slate-100 dark:bg-slate-900 p-6 overflow-y-auto">
       <div className="flex justify-between items-start">
         {/* Main content column */}
         <div className="flex-grow mr-6 space-y-6">
           {/* Greeting */}
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">Good morning, {userName}!</h1>
-            <p className="text-sm text-gray-500">{currentDate}</p>
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-slate-100">Good morning, {userName}!</h1>
+            <p className="text-sm text-gray-500 dark:text-slate-400">{currentDate}</p>
           </div>
 
           {/* Report Overview Section */}
-          <div className="bg-muted p-6 rounded-lg shadow"> {/* Changed bg-white to bg-muted */}
+          <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-gray-700">Report Overview</h2>
+              <h2 className="text-xl font-semibold text-gray-700 dark:text-slate-200">Report Overview</h2>
               <Button asChild variant="outline" size="sm">
                 <Link to="/view-reports">
                   <Eye className="mr-2 h-4 w-4" /> View All Reports
@@ -119,7 +118,7 @@ const DashboardMainArea = () => {
             {isLoadingReports && (
               <div className="flex justify-center items-center py-10">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <p className="ml-2">Loading report stats...</p>
+                <p className="ml-2 dark:text-slate-300">Loading report stats...</p>
               </div>
             )}
 
@@ -152,20 +151,20 @@ const DashboardMainArea = () => {
                   description="Reports under review"
                 />
                 <DashboardStatCard 
-                  title="Resolved Reports" 
-                  value={resolvedReportsCount} 
-                  icon={CheckCircle2} 
-                  iconColor="text-green-500"
-                  description="Successfully closed reports"
+                  title="Driver Tracked" 
+                  value={"N/A"} // Placeholder value
+                  icon={MapPin} 
+                  iconColor="text-purple-500"
+                  description="Drivers currently tracked (Feature WIP)"
                 />
               </div>
             )}
             
-            <h3 className="text-lg font-semibold text-gray-700 mt-6 mb-2">Report Trends (Last 6 Months)</h3>
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-slate-200 mt-6 mb-2">Report Trends (Last 6 Months)</h3>
             {isLoadingReports ? (
                <div className="flex justify-center items-center h-[250px]">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <p className="ml-2">Loading chart data...</p>
+                <p className="ml-2 dark:text-slate-300">Loading chart data...</p>
               </div>
             ) : reportsError ? (
               <div className="flex justify-center items-center h-[250px] text-red-500">
@@ -174,7 +173,7 @@ const DashboardMainArea = () => {
             ) : (
               <AnalyticsChart data={chartData} />
             )}
-            <p className="text-xs text-gray-500 mt-2">Note: Chart displays total reports submitted each month.</p>
+            <p className="text-xs text-gray-500 dark:text-slate-400 mt-2">Note: Chart displays total reports submitted each month.</p>
           </div>
         </div>
 
