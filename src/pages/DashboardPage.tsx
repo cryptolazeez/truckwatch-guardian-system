@@ -1,10 +1,9 @@
-
 import React, { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { Loader2 } from "lucide-react";
-import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
+// import DashboardSidebar from '@/components/dashboard/DashboardSidebar'; // Removed import
 import DashboardMainArea from '@/components/dashboard/DashboardMainArea';
 
 const DashboardPage = () => {
@@ -49,8 +48,8 @@ const DashboardPage = () => {
 
   return (
     <div className="flex h-[calc(100vh-theme(spacing.14)-1px)] bg-gray-100"> {/* Full height minus header, light gray background */}
-      <DashboardSidebar />
-      <DashboardMainArea />
+      {/* <DashboardSidebar /> Removed sidebar */}
+      <DashboardMainArea /> {/* Main area will now take full width */}
     </div>
   );
 };
