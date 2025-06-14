@@ -75,8 +75,10 @@ export type Database = {
           created_at: string
           date_occurred: string
           description: string
+          driver_email: string | null
           driver_first_name: string | null
           driver_last_name: string | null
+          driver_phone: string | null
           id: string
           incident_type: Database["public"]["Enums"]["incident_type_enum"]
           location: string
@@ -92,8 +94,10 @@ export type Database = {
           created_at?: string
           date_occurred: string
           description: string
+          driver_email?: string | null
           driver_first_name?: string | null
           driver_last_name?: string | null
+          driver_phone?: string | null
           id?: string
           incident_type: Database["public"]["Enums"]["incident_type_enum"]
           location: string
@@ -109,8 +113,10 @@ export type Database = {
           created_at?: string
           date_occurred?: string
           description?: string
+          driver_email?: string | null
           driver_first_name?: string | null
           driver_last_name?: string | null
+          driver_phone?: string | null
           id?: string
           incident_type?: Database["public"]["Enums"]["incident_type_enum"]
           location?: string

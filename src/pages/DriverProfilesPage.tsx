@@ -24,6 +24,8 @@ const fetchReports = async (): Promise<ReportListItem[]> => {
       driver_first_name,
       driver_last_name,
       cdl_number,
+      driver_email,
+      driver_phone,
       incident_type,
       date_occurred,
       location,
@@ -45,6 +47,8 @@ const fetchReports = async (): Promise<ReportListItem[]> => {
     driver_first_name: report.driver_first_name,
     driver_last_name: report.driver_last_name,
     cdl_number: report.cdl_number || 'N/A',
+    driver_email: report.driver_email,
+    driver_phone: report.driver_phone,
     incident_type: report.incident_type as IncidentType,
     date_occurred: report.date_occurred,
     location: report.location || 'N/A',
@@ -93,11 +97,13 @@ const DriverProfilesPage = () => {
 
     const profiles: DriverProfileViewData[] = Object.values(groupedByDriver).map(reports => {
       const representativeReport = reports[0];
+      const email = reports.find(r => r.driver_email)?.driver_email || "Not Available";
+      const phone = reports.find(r => r.driver_phone)?.driver_phone || "Not Available";
       return {
         driver_name: representativeReport.driver_name,
         cdl_number: representativeReport.cdl_number,
-        phone: "Not Available", // Placeholder, to be potentially fetched or part of driver data
-        email: "Not Available", // Placeholder
+        phone,
+        email,
         report_count: reports.length,
         reports: reports.map((r): DriverProfileReportItem => ({
           id: r.id,
@@ -229,4 +235,3 @@ const DriverProfilesPage = () => {
 };
 
 export default DriverProfilesPage;
-

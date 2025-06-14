@@ -24,6 +24,8 @@ export interface Report {
   driver_first_name?: string | null;
   driver_last_name?: string | null;
   cdl_number: string;
+  driver_email?: string | null;
+  driver_phone?: string | null;
   incident_type: IncidentType;
   date_occurred: string; // DATE
   location: string;
@@ -42,6 +44,8 @@ export interface ReportListItem {
   driver_first_name?: string | null; // For potential individual use
   driver_last_name?: string | null; // For potential individual use
   cdl_number: string;
+  driver_email?: string | null;
+  driver_phone?: string | null;
   incident_type: IncidentType;
   date_occurred: string; // Date of the incident
   location: string;
