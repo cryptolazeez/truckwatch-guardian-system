@@ -6,12 +6,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LogIn, UserPlus } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-
 const AuthPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("login");
-
   useEffect(() => {
     if (location.hash === "#register") {
       setActiveTab("register");
@@ -19,14 +17,13 @@ const AuthPage = () => {
       setActiveTab("login");
     }
   }, [location.hash]);
-
   const handleTabChange = (value: string) => {
     setActiveTab(value);
-    navigate(value === "register" ? "/auth#register" : "/auth", { replace: true });
+    navigate(value === "register" ? "/auth#register" : "/auth", {
+      replace: true
+    });
   };
-
-  return (
-    <div className="container mx-auto py-8 px-4 md:px-6 flex items-center justify-center min-h-[calc(100vh-150px)]">
+  return <div className="container mx-auto py-8 px-4 md:px-6 flex items-center justify-center min-h-[calc(100vh-150px)]">
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full max-w-md">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="login">
@@ -37,40 +34,22 @@ const AuthPage = () => {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="login">
-          <Card className="shadow-lg">
+          <Card className="shadow-lg bg-lime-100">
             <CardHeader>
               <CardTitle>Login to TruckWatch</CardTitle>
               <CardDescription>Access your company dashboard or driver profile.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4 py-6">
+            <CardContent className="space-y-4">
               <div>
                 <Label htmlFor="email-login">Email</Label>
                 <Input id="email-login" type="email" placeholder="you@example.com" />
               </div>
               <div>
-                <div className="flex items-center justify-between mb-1">
-                  <Label htmlFor="password-login">Password</Label>
-                  <Button variant="link" size="sm" className="px-0 h-auto text-primary hover:underline text-xs">
-                    Forgot Password?
-                  </Button>
-                </div>
+                <Label htmlFor="password-login">Password</Label>
                 <Input id="password-login" type="password" placeholder="••••••••" />
               </div>
-              
-              <Button variant="outline" className="w-full">
-                {/* Icon can be added here if desired, e.g. <img src="/google-icon.svg" alt="Google" className="mr-2 h-4 w-4" /> */}
-                Sign in with Google
-              </Button>
-              
               <Button type="submit" className="w-full">Login</Button>
-              
-              <div className="flex items-center pt-2">
-                <div className="flex-grow border-t border-border" />
-                <span className="mx-4 text-xs uppercase text-muted-foreground">OR SIGN UP</span>
-                <div className="flex-grow border-t border-border" />
-              </div>
-              
-              <p className="text-sm text-center text-muted-foreground pt-2">
+              <p className="text-sm text-center text-muted-foreground">
                 This is a placeholder. Full authentication will be implemented with Supabase.
               </p>
             </CardContent>
@@ -107,8 +86,6 @@ const AuthPage = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>;
 };
-
 export default AuthPage;
