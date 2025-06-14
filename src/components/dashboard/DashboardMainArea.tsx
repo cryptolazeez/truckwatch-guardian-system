@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -148,33 +149,41 @@ const DashboardMainArea = () => {
 
             {!isLoadingReports && !reportsError && (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
-                <DashboardStatCard 
-                  title="Total Reports" 
-                  value={totalReports} 
-                  icon={ListChecks} 
-                  description="All submitted reports"
-                />
-                <DashboardStatCard 
-                  title="Pending Review" 
-                  value={pendingReportsCount} 
-                  icon={Hourglass} 
-                  iconColor="text-yellow-500"
-                  description="Reports awaiting action"
-                />
-                <DashboardStatCard 
-                  title="Reviewed Reports" 
-                  value={reviewedReportsCount} 
-                  icon={UserCheck} 
-                  iconColor="text-blue-500"
-                  description="Reports under review"
-                />
-                <DashboardStatCard 
-                  title="Resolved Reports" 
-                  value={resolvedReportsCount} 
-                  icon={CheckCircle2} 
-                  iconColor="text-green-500"
-                  description="Successfully closed reports"
-                />
+                <Link to="/view-reports?status=All" className="outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-lg">
+                  <DashboardStatCard 
+                    title="Total Reports" 
+                    value={totalReports} 
+                    icon={ListChecks} 
+                    description="All submitted reports"
+                  />
+                </Link>
+                <Link to="/view-reports?status=Pending" className="outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-lg">
+                  <DashboardStatCard 
+                    title="Pending Review" 
+                    value={pendingReportsCount} 
+                    icon={Hourglass} 
+                    iconColor="text-yellow-500"
+                    description="Reports awaiting action"
+                  />
+                </Link>
+                <Link to="/view-reports?status=Reviewed" className="outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-lg">
+                  <DashboardStatCard 
+                    title="Reviewed Reports" 
+                    value={reviewedReportsCount} 
+                    icon={UserCheck} 
+                    iconColor="text-blue-500"
+                    description="Reports under review"
+                  />
+                </Link>
+                <Link to="/view-reports?status=Resolved" className="outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-lg">
+                  <DashboardStatCard 
+                    title="Resolved Reports" 
+                    value={resolvedReportsCount} 
+                    icon={CheckCircle2} 
+                    iconColor="text-green-500"
+                    description="Successfully closed reports"
+                  />
+                </Link>
               </div>
             )}
             

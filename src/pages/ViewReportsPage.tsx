@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, XCircle } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
 import BackButton from '@/components/layout/BackButton';
+import { useSearchParams } from 'react-router-dom';
 
 const reportStatuses: ReportStatusType[] = ["Pending", "Reviewed", "Resolved", "Rejected"];
 
@@ -55,13 +57,19 @@ const fetchReports = async (): Promise<ReportListItem[]> => {
 
 const ViewReportsPage = () => {
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  
   const { data: allReports = [], isLoading: isLoadingReports, error: reportsError } = useQuery<ReportListItem[], Error>({
     queryKey: ['reports'],
     queryFn: fetchReports,
   });
 
+  const initialStatusFromUrl = searchParams.get('status');
+  const validStatuses: (ReportStatusType | "All")[] = [...reportStatuses, "All"];
+  const initialStatus = initialStatusFromUrl && validStatuses.includes(initialStatusFromUrl as any) ? initialStatusFromUrl as ReportStatusType | "All" : "All";
+
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState<ReportStatusType | "All">("All");
+  const [selectedStatus, setSelectedStatus] = useState<ReportStatusType | "All">(initialStatus);
   const [displayedReports, setDisplayedReports] = useState<ReportListItem[]>([]);
   const [activeTab, setActiveTab] = useState<string>("allReports");
   const [driverProfiles, setDriverProfiles] = useState<DriverProfileViewData[]>([]);
