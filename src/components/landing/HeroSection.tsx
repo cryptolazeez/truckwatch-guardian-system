@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
@@ -18,8 +17,12 @@ const HeroSection = () => {
             <Button size="lg" asChild className="bg-orange-500 hover:bg-orange-600 text-white shadow-lg hover:shadow-xl transition-shadow">
               <Link to="/report-incident">Report a Driver</Link>
             </Button>
-            <Button size="lg" variant="outline" asChild className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary shadow-lg hover:shadow-xl transition-shadow">
-              <Link to="/drivers">View Reports</Link>
+            <Button asChild className="btn-17">
+              <Link to="/drivers">
+                <span className="text-container">
+                  <span className="text">View Reports</span>
+                </span>
+              </Link>
             </Button>
           </div>
         </div>
