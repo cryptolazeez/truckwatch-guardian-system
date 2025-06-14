@@ -1,8 +1,7 @@
-
 import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { ReportListItem, IncidentType, ReportStatus as ReportStatusType } from '@/types';
+import { ReportListItem, ReportStatus as ReportStatusType } from '@/types';
 import DashboardStatCard from "@/components/dashboard/DashboardStatCard";
 import { ListChecks, Hourglass, UserCheck, CheckCircle2, ShieldAlert, Loader2, XCircle } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
@@ -96,7 +95,7 @@ const DashboardPage = () => {
         </h1>
         <p className="text-muted-foreground mt-1">
           Overview of platform activity and report statuses.
-        p>
+        </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
