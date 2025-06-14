@@ -85,8 +85,8 @@ const DashboardSidebar = () => {
       {/* Main Navigation */}
       <nav className="flex-grow space-y-1">
         <NavItem icon={LayoutDashboard} label="Dashboard" isActive />
-        <NavItem icon={Bell} label="Notifiche" badgeCount={3} />
-        <NavItem icon={Calendar} label="Calendario" />
+        <NavItem icon={Bell} label="Notifications" badgeCount={3} />
+        <NavItem icon={Calendar} label="Calendar" />
         <NavItem icon={MessageSquare} label="Reports" /> {/* Using MessageSquare as per allowed icons */}
         <NavItem icon={Briefcase} label="Publishers" /> {/* Using Briefcase for Publishers */}
       </nav>
@@ -94,7 +94,7 @@ const DashboardSidebar = () => {
       {/* MIEI BANDS Section */}
       <div>
         <div className="flex items-center justify-between px-4 py-2">
-          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">MIEI BANDS</h3>
+          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">MY BANDS</h3>
           <Button variant="ghost" size="icon" className="h-7 w-7 text-gray-400 hover:text-white hover:bg-gray-700">
             <Plus className="h-4 w-4" />
           </Button>
@@ -108,11 +108,10 @@ const DashboardSidebar = () => {
       
       {/* Settings */}
       <div className="mt-auto"> {/* Pushes to bottom */}
-        <NavItem icon={Settings} label="Impostazioni" />
+        <NavItem icon={Settings} label="Settings" />
       </div>
     </div>
   );
 };
 
 export default DashboardSidebar;
-

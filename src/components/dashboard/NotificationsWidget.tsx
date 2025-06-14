@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
 interface NotificationItemProps {
-  logo: string; // URL or placeholder for logo
+  logo: string; 
   title: string;
   message: string;
   source: string;
@@ -13,8 +12,8 @@ interface NotificationItemProps {
 }
 
 const notifications: NotificationItemProps[] = [
-  { logo: 'ON', title: 'Nuovo commento', message: 'Potresti spiegare meglio?', source: 'QuotidianoNazionale - SoluzioneFAD', time: '1 giorno fa', isNew: true },
-  { logo: 'WI', title: 'Wired IT', message: 'Nuovo publisher - Senior', source: 'Cinque soluzione per una magiore - SoluzioneFAD', time: '2 giorni fa', isNew: true },
+  { logo: 'QN', title: 'New comment', message: 'Could you explain better?', source: 'QuotidianoNazionale - SoluzioneFAD', time: '1 day ago', isNew: true }, // Changed ON to QN
+  { logo: 'WI', title: 'Wired IT', message: 'New publisher - Senior', source: 'Five solutions for greater impact - SoluzioneFAD', time: '2 days ago', isNew: true },
 ];
 
 const NotificationItem: React.FC<NotificationItemProps> = ({ logo, title, message, source, time, isNew }) => (
@@ -38,7 +37,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ logo, title, messag
 const NotificationsWidget = () => {
   return (
     <div className="bg-white p-4 rounded-lg shadow">
-      <h3 className="text-lg font-semibold text-gray-700 mb-3">Notifiche</h3>
+      <h3 className="text-lg font-semibold text-gray-700 mb-3">Notifications</h3>
       <div className="space-y-1">
         {notifications.map((notification, index) => (
           <NotificationItem key={index} {...notification} />
@@ -46,7 +45,7 @@ const NotificationsWidget = () => {
       </div>
       <div className="mt-4 text-center">
         <Link to="#" className="text-sm text-primary hover:underline">
-          Vedi tutte le notifiche &gt;
+          View all notifications &gt;
         </Link>
       </div>
     </div>

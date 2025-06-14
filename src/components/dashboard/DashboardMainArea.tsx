@@ -8,7 +8,7 @@ import UserProfileWidget from './UserProfileWidget';
 
 const DashboardMainArea = () => {
   const userName = "Alexis"; // Hardcoded
-  const currentDate = "Lunedì 06, Maggio 2021"; // Hardcoded
+  const currentDate = "Monday, May 06, 2021"; // Hardcoded & Translated
 
   return (
     <div className="flex-1 bg-slate-100 p-6 overflow-y-auto">
@@ -17,22 +17,22 @@ const DashboardMainArea = () => {
         <div className="flex-grow mr-6 space-y-6">
           {/* Greeting */}
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">Buongiorno, {userName}!</h1>
+            <h1 className="text-3xl font-bold text-gray-800">Good morning, {userName}!</h1>
             <p className="text-sm text-gray-500">{currentDate}</p>
           </div>
 
-          {/* Andamento Section */}
+          {/* Performance Section */}
           <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-semibold text-gray-700 mb-1">Andamento</h2>
+            <h2 className="text-xl font-semibold text-gray-700 mb-1">Performance</h2>
             <div className="flex space-x-8 mb-4 text-sm text-gray-600">
-              <div><strong className="text-2xl text-gray-800">14,6K</strong> Visite</div>
-              <div><strong className="text-2xl text-gray-800">18,9K</strong> Clicks</div>
-              <div><strong className="text-2xl text-gray-800">1,1K</strong> Rimbalzo</div>
+              <div><strong className="text-2xl text-gray-800">14.6K</strong> Visits</div>
+              <div><strong className="text-2xl text-gray-800">18.9K</strong> Clicks</div>
+              <div><strong className="text-2xl text-gray-800">1.1K</strong> Bounce Rate</div>
             </div>
             <AnalyticsChart />
           </div>
 
-          {/* Campagne Section */}
+          {/* Campaigns Section */}
           <CampaignsList />
         </div>
 

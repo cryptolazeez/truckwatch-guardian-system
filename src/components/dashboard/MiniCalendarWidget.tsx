@@ -1,13 +1,12 @@
-
 import React from 'react';
 import { Calendar } from '@/components/ui/calendar'; // Shadcn calendar
 
 const MiniCalendarWidget = () => {
-  const [date, setDate] = React.useState<Date | undefined>(new Date(2021, 3, 4)); // April 4, 2021 to match image
+  const [date, setDate] = React.useState<Date | undefined>(new Date(2021, 3, 4)); // April 4, 2021
 
   return (
     <div className="bg-white p-4 rounded-lg shadow">
-      <h3 className="text-lg font-semibold text-gray-700 mb-3">Prossimi lanci</h3>
+      <h3 className="text-lg font-semibold text-gray-700 mb-3">Upcoming Launches</h3>
       <Calendar
         mode="single"
         selected={date}
@@ -34,7 +33,7 @@ const MiniCalendarWidget = () => {
       {/* Placeholder for event display for selected date */}
       {date?.getDate() === 4 && date?.getMonth() === 3 && ( // Check for April 4th
          <div className="mt-4 pt-3 border-t border-gray-200">
-            <p className="text-xs text-gray-500 uppercase">DOM 04</p>
+            <p className="text-xs text-gray-500 uppercase">SUN 04</p> {/* Translated from DOM to SUN */}
             <div className="flex items-center mt-1">
                 <span className="w-8 h-8 rounded bg-purple-600 text-white flex items-center justify-center font-bold text-xs mr-2">WD</span>
                 <p className="text-sm text-gray-700 font-medium">Wired</p>

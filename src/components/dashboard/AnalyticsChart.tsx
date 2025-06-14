@@ -3,18 +3,18 @@ import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 const data = [
-  { name: 'Gen', value: 2000 },
+  { name: 'Jan', value: 2000 },
   { name: 'Feb', value: 3000 },
   { name: 'Mar', value: 7500 },
   { name: 'Apr', value: 10000 },
-  { name: 'Mag', value: 4500 },
-  { name: 'Giu', value: 1200 },
-  { name: 'Lug', value: 800 },
-  { name: 'Ago', value: 1500 },
-  { name: 'Set', value: 3200 },
-  { name: 'Ott', value: 2800 },
+  { name: 'May', value: 4500 },
+  { name: 'Jun', value: 1200 },
+  { name: 'Jul', value: 800 },
+  { name: 'Aug', value: 1500 },
+  { name: 'Sep', value: 3200 },
+  { name: 'Oct', value: 2800 },
   { name: 'Nov', value: 4100 },
-  { name: 'Dic', value: 3500 },
+  { name: 'Dec', value: 3500 },
 ];
 
 const AnalyticsChart = () => {
@@ -34,7 +34,8 @@ const AnalyticsChart = () => {
           />
           <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={20}>
             {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.name === 'Mag' ? orangeColor : primaryColor} />
+              // Highlight 'May' as per previous logic
+              <Cell key={`cell-${index}`} fill={entry.name === 'May' ? orangeColor : primaryColor} />
             ))}
           </Bar>
         </BarChart>
