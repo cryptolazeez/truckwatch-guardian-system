@@ -158,8 +158,8 @@ const LandingPage = () => {
               title="Report Incident"
               description="Trucking companies submit detailed incident reports through our secure platform, categorizing by employment defaults, safety violations, theft, or professional misconduct."
               details={["Employment Defaults", "Safety Violations", "Theft/Criminal", "Misconduct"]}
-              imgSrc="https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1000&auto=format&fit=crop"
-              imgAlt="Reporting an incident on a laptop"
+              imgSrc="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1000&auto=format&fit=crop"
+              imgAlt="Professional reporting an incident on a laptop"
             />
             <HowItWorksStep
               num="2"
