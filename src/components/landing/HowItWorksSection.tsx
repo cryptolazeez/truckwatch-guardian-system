@@ -15,16 +15,16 @@ const HowItWorksSection = () => {
             title="Report Incident"
             description="Trucking companies submit detailed incident reports through our secure platform, categorizing by employment defaults, safety violations, theft, or professional misconduct."
             details={["Employment Defaults", "Safety Violations", "Theft/Criminal", "Misconduct"]}
-            imgSrc="https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1000&auto=format&fit=crop"
-            imgAlt="Laptop screen displaying interface for incident reporting"
+            imgSrc="https://images.unsplash.com/photo-1509021436665-8f07dbf5bf1d?q=80&w=1000&auto=format&fit=crop"
+            imgAlt="User reporting an incident on a modern interface"
           />
           <HowItWorksStep
             num="2"
             title="Verify & Moderate"
             description="Our admin team reviews each submission for accuracy and fairness. Drivers are notified and can dispute through our formal appeals process."
             details={["Admin review & validation", "Driver notification system", "Dispute resolution workflow"]}
-            imgSrc="/lovable-uploads/41c72141-b5fc-47d3-b8b6-e39b941840e0.png"
-            imgAlt="Verification process"
+            imgSrc="https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=1000&auto=format&fit=crop"
+            imgAlt="Team verifying incident report details"
             reverse={true}
           />
           <HowItWorksStep
@@ -32,16 +32,16 @@ const HowItWorksSection = () => {
             title="Search & Access"
             description="Authorized companies can securely search driver records by CDL number or name, accessing comprehensive verified history reports."
             details={["CDL number lookup", "Driver name search", "Multi-factor authentication"]}
-            imgSrc="/lovable-uploads/f775300b-5be4-48c3-b10c-6b55223b63f0.png"
-            imgAlt="Searching for driver records"
+            imgSrc="https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?q=80&w=1000&auto=format&fit=crop"
+            imgAlt="Searching for verified driver records"
           />
           <HowItWorksStep
             num="4"
             title="Make Informed Decisions"
             description="Armed with verified professional conduct data, companies can make confident hiring decisions that reduce risk and improve fleet safety."
             details={["Reduced hiring risks", "Lower operational costs", "Improved fleet safety"]}
-            imgSrc="/lovable-uploads/c1c26a61-2b38-4c68-a9c2-cafc52d54484.png"
-            imgAlt="Making informed decisions"
+            imgSrc="https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=1000&auto=format&fit=crop"
+            imgAlt="Making informed decisions based on verified data"
             reverse={true}
           />
         </div>
