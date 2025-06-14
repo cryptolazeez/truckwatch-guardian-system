@@ -1,4 +1,3 @@
-
 export type ReportStatus = 'Pending' | 'Reviewed' | 'Resolved' | 'Rejected';
 
 export type IncidentType = 
@@ -45,3 +44,11 @@ export interface ReportListItem {
   company_name_making_report: string;
 }
 
+export interface Notification {
+  id: string;
+  created_at: string;
+  title: string;
+  description: string;
+  is_read: boolean;
+  link?: string; // Optional link for the notification
+}

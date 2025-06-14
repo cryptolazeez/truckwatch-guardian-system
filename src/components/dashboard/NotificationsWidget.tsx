@@ -1,135 +1,78 @@
-import React, { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Notification } from '@/integrations/supabase/types';
+
+import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { BellRing, CalendarClock, AlertCircle, Info, CheckCircle, Loader2 } from 'lucide-react';
-import { formatDistanceToNowStrict } from 'date-fns';
+import { Notification } from '@/types'; // Changed import path
+import { Bell, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { formatDistanceToNow } from 'date-fns';
 
-const fetchNotifications = async (): Promise<Notification[]> => {
-  const { data, error } = await supabase
-    .from('notifications')
-    .select('*')
-    .order('notification_time', { ascending: false })
-    .limit(5);
-
-  if (error) {
-    console.error("Error fetching notifications:", error);
-    throw error;
-  }
-
-  return data || [];
-};
+// Mock data for notifications - replace with actual data fetching
+const mockNotifications: Notification[] = [
+  {
+    id: '1',
+    created_at: new Date(Date.now() - 1000 * 60 * 5).toISOString(), // 5 minutes ago
+    title: 'New Report Submitted',
+    description: 'Report #1023 for driver John Doe has been submitted.',
+    is_read: false,
+    link: '/view-reports/1023'
+  },
+  {
+    id: '2',
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
+    title: 'Account Update',
+    description: 'Your company profile has been updated successfully.',
+    is_read: true,
+  },
+  {
+    id: '3',
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 day ago
+    title: 'Maintenance Reminder',
+    description: 'Scheduled maintenance tomorrow at 2 AM.',
+    is_read: false,
+  },
+];
 
 const NotificationsWidget = () => {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const loadNotifications = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const initialNotifications = await fetchNotifications();
-        setNotifications(initialNotifications);
-      } catch (err: any) {
-        setError(err.message || 'Failed to load notifications.');
-        console.error("Failed to fetch notifications:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadNotifications();
-
-    const notificationsSubscription = supabase
-      .channel('public:notifications')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'notifications' },
-        (payload) => {
-          console.log('Change received!', payload)
-          loadNotifications();
-        }
-      )
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(notificationsSubscription)
-    }
-  }, []);
-
-  const getIcon = (logo?: string) => {
-    switch (logo) {
-      case 'calendar':
-        return <CalendarClock className="h-5 w-5" />;
-      case 'alert':
-        return <AlertCircle className="h-5 w-5" />;
-      case 'info':
-        return <Info className="h-5 w-5" />;
-      case 'check':
-        return <CheckCircle className="h-5 w-5" />;
-      default:
-        return null;
-    }
-  };
+  const unreadCount = mockNotifications.filter(n => !n.is_read).length;
 
   return (
-    <Card className="bg-slate-50 dark:bg-slate-800 overflow-hidden shadow-lg animate-fade-in">
-      <CardHeader className="border-b">
-        <CardTitle className="flex items-center text-lg">
-          <BellRing className="mr-2 h-5 w-5 text-primary" />
-          Recent Notifications
-        </CardTitle>
+    <Card className="bg-background shadow-lg rounded-xl"> {/* Added bg-background */}
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle className="text-lg font-semibold text-foreground">Notifications</CardTitle>
+        <div className="flex items-center">
+          {unreadCount > 0 && (
+            <Badge variant="destructive" className="mr-2">{unreadCount} New</Badge>
+          )}
+          <Bell className="h-5 w-5 text-muted-foreground" />
+        </div>
       </CardHeader>
-      <CardContent className="p-0 max-h-80 overflow-y-auto">
-        {isLoading && (
-          <div className="p-4 space-y-2">
-            <div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-md h-4 w-3/4"></div>
-            <div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-md h-3 w-5/6"></div>
-            <div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-md h-3 w-1/2"></div>
-          </div>
-        )}
-        {!isLoading && error && (
-          <div className="p-4 text-red-500">
-            Error: {error}
-          </div>
-        )}
-        {!isLoading && !error && notifications.length === 0 && (
-          <div className="p-4 text-gray-500 dark:text-gray-400">
-            No new notifications.
-          </div>
-        )}
-        {!isLoading && !error && notifications.length > 0 && (
-          <ul className="divide-y">
-            {notifications.map((notification) => (
-              <li key={notification.id} className={`p-4 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors ${notification.is_new ? 'bg-primary/5 dark:bg-primary/10' : ''}`}>
-                <a href={notification.link_to || '#'} className="flex items-start space-x-3 group">
-                  <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center text-sm font-semibold ${notification.logo && notification.logo.length <= 3 ? 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300' : ''}`}>
-                    {notification.logo && notification.logo.length <= 3 ? notification.logo : getIcon(notification.logo)}
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{notification.title}</p>
-                    <p className="text-xs text-muted-foreground">{notification.message}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {formatDistanceToNowStrict(new Date(notification.notification_time), { addSuffix: true })}
-                      {notification.source && ` • ${notification.source}`}
-                    </p>
-                  </div>
-                  {notification.is_new && (
-                    <span className="h-2 w-2 rounded-full bg-primary mt-1 animate-pulse"></span>
+      <CardContent className="p-0">
+        {mockNotifications.length === 0 ? (
+          <p className="text-sm text-muted-foreground px-6 py-4">No new notifications.</p>
+        ) : (
+          <ul className="divide-y divide-border">
+            {mockNotifications.slice(0, 3).map((notification) => ( // Show max 3 notifications
+              <li key={notification.id} className={`p-4 hover:bg-muted/50 ${!notification.is_read ? 'bg-primary/5' : ''}`}>
+                <div className="flex justify-between items-start">
+                  <h4 className="font-medium text-sm text-foreground">{notification.title}</h4>
+                  {!notification.is_read && (
+                    <span className="h-2 w-2 rounded-full bg-primary mt-1"></span>
                   )}
-                </a>
+                </div>
+                <p className="text-xs text-muted-foreground mb-1">{notification.description}</p>
+                <p className="text-xs text-muted-foreground/80">
+                  {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
+                </p>
               </li>
             ))}
           </ul>
         )}
       </CardContent>
-      {notifications.length > 0 && !isLoading && !error && (
-        <CardFooter className="border-t p-3">
-          <Button variant="ghost" size="sm" className="w-full text-primary hover:text-primary">
-            View all notifications
+      {mockNotifications.length > 0 && (
+        <CardFooter className="border-t border-border pt-4">
+          <Button variant="outline" size="sm" className="w-full">
+            View All Notifications <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </CardFooter>
       )}
