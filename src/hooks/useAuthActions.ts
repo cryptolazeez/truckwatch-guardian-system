@@ -16,9 +16,9 @@ export const useAuthActions = () => {
       email: values.email,
       password: values.password,
     });
+    setIsLoading(false);
 
     if (error) {
-      setIsLoading(false);
       toast({
         title: "Login Failed",
         description: error.message,
@@ -28,39 +28,13 @@ export const useAuthActions = () => {
     }
 
     if (data.session) {
-      // Fetch user role to redirect correctly
-      const { data: roleData, error: roleError } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', data.session.user.id)
-        .maybeSingle();
-
-      setIsLoading(false);
-
-      if (roleError) {
-        toast({
-          title: "Login Error",
-          description: `Failed to verify user role: ${roleError.message}`,
-          variant: "destructive",
-        });
-        // Log them out to be safe
-        await supabase.auth.signOut();
-        return;
-      }
-      
       toast({
         title: "Login Successful",
-        description: "Welcome back!",
+        description: "Redirecting...",
       });
-
-      const userRole = roleData?.role;
-      if (userRole === 'moderator' || userRole === 'admin') {
-        navigate('/moderator-dashboard');
-      } else {
-        navigate('/');
-      }
+      // Redirection is now consistently handled by the page component
+      // listening to auth state changes, which is a more robust pattern.
     } else {
-        setIsLoading(false);
         toast({
             title: "Login Failed",
             description: "Could not establish a session. Please try again.",
@@ -101,7 +75,7 @@ export const useAuthActions = () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth`,
+        redirectTo: `${window.location.origin}/moderator-login`,
       },
     });
     if (error) {
