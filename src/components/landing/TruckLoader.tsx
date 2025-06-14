@@ -5,10 +5,19 @@ const TruckLoader = () => {
   return (
     <div className="loader">
       <div className="truckWrapper">
-        <svg className="truckBody" viewBox="0 0 130 70" fill="#282828" xmlns="http://www.w3.org/2000/svg">
-          <path d="M125.7,35.8h-15.4v-4.5c0-2.3-1.9-4.2-4.2-4.2H84.3c-2.3,0-4.2,1.9-4.2,4.2v4.5H23.5c-2.3,0-4.2,1.9-4.2,4.2v19.4 c0,2.3,1.9,4.2,4.2,4.2h102.2c2.3,0,4.2-1.9,4.2-4.2V40C129.9,37.7,128.1,35.8,125.7,35.8z M84.3,31.3h21.8v4.5H84.3V31.3z" />
-          <path d="M18.6,35.8H4.2C1.9,35.8,0,37.7,0,40v15.2c0,2.3,1.9,4.2,4.2,4.2h14.3V35.8z" />
-          <path d="M75.9,20.1H23.5c-2.3,0-4.2,1.9-4.2,4.2v11.5h56.6V24.3C79.9,22,78.1,20.1,75.9,20.1z" />
+        <svg className="truckBody" viewBox="0 0 130 75" xmlns="http://www.w3.org/2000/svg">
+          {/* Chassis */}
+          <rect x="10" y="60" width="115" height="5" fill="#4B5563" />
+          {/* Trailer */}
+          <rect x="40" y="10" width="85" height="50" fill="#E5E7EB" stroke="#1F2937" strokeWidth="1.5" />
+          {/* Cabin */}
+          <path d="M45 25 V60 H15 L10 55 V35 L20 25 H45 Z" fill="#ef4444" stroke="#1F2937" strokeWidth="1.5" />
+          {/* Window */}
+          <path d="M42 28 V42 H25 L23 40 V30 L25 28 H42 Z" fill="#BFDBFE" stroke="#1F2937" strokeWidth="1" />
+          {/* Headlight */}
+          <rect x="11" y="50" width="4" height="3" fill="yellow" />
+           {/* Back door handle */}
+          <rect x="120" y="32" width="2" height="10" fill="#4B5563" />
         </svg>
 
         <div className="truckTires">
@@ -24,14 +33,16 @@ const TruckLoader = () => {
         <div className="road"></div>
         <svg
           height="90"
-          viewBox="0 0 20 90"
+          viewBox="0 0 40 90"
           className="lampPost"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <path d="M 5,90 V 10" stroke="#282828" strokeWidth="4" />
-          <path d="M 5,15 h 10" stroke="#282828" strokeWidth="2" />
-          <rect x="12" y="8" width="8" height="8" fill="#282828" />
-          <rect x="14" y="10" width="4" height="4" fill="yellow" />
+          {/* Post */}
+          <path d="M10 90 V 20 C 10 5, 25 5, 25 20" stroke="#282828" strokeWidth="3" fill="none"/>
+          {/* Lamp */}
+          <path d="M25 20 V 23" stroke="#282828" strokeWidth="2" />
+          <path d="M20 23 A 5 5 0 1 1 30 23 Z" fill="#282828" />
+          <circle cx="25" cy="26" r="2" fill="yellow" />
         </svg>
       </div>
     </div>
