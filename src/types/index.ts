@@ -40,6 +40,7 @@ export interface ReportListItem {
   id: string;
   created_at: string;
   driver_name: string; // Combination of first and last
+  cdl_number: string; // Added CDL number
   incident_type: IncidentType;
   status: ReportStatus;
   company_name_making_report: string;
