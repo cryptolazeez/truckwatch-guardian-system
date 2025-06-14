@@ -7,8 +7,9 @@ import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import LandingPage from "./pages/LandingPage"; // Renamed from Index
 import DriverProfilesPage from "./pages/DriverProfilesPage";
 import ReportIncidentPage from "./pages/ReportIncidentPage";
-import ViewReportsPage from "./pages/ViewReportsPage"; // <-- Added import for the new page
+import ViewReportsPage from "./pages/ViewReportsPage";
 import AuthPage from "./pages/AuthPage";
+import DashboardPage from "./pages/DashboardPage"; // <-- Added import for DashboardPage
 import NotFound from "./pages/NotFound";
 import Header from "./components/layout/Header";
 
@@ -35,8 +36,9 @@ const App = () => (
             <Route path="/" element={<LandingPage />} />
             <Route path="/drivers" element={<DriverProfilesPage />} />
             <Route path="/report-incident" element={<ReportIncidentPage />} />
-            <Route path="/view-reports" element={<ViewReportsPage />} /> {/* <-- Added route for ViewReportsPage */}
+            <Route path="/view-reports" element={<ViewReportsPage />} />
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/dashboard" element={<DashboardPage />} /> {/* <-- Added route for DashboardPage */}
             {/* 
               Placeholder routes for privacy and terms, you can create these pages later 
               <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
@@ -52,4 +54,3 @@ const App = () => (
 );
 
 export default App;
-
