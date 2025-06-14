@@ -36,6 +36,7 @@ const TruckLoader = () => {
           viewBox="0 0 40 90"
           className="lampPost"
           xmlns="http://www.w3.org/2000/svg"
+          style={{ transform: "scaleX(-1)" }}
         >
           {/* Post */}
           <path d="M10 90 V 20 C 10 5, 25 5, 25 20" stroke="#282828" strokeWidth="3" fill="none"/>
