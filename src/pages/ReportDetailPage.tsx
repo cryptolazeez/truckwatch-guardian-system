@@ -168,12 +168,18 @@ const ReportDetailPage: React.FC = () => {
               <h3 className="font-semibold text-lg">Moderator Actions</h3>
               <div className="flex flex-wrap gap-2">
                 {report.status === 'Pending' && (
-                  <Button onClick={() => updateStatusMutation.mutate({ newStatus: 'Reviewed' })} disabled={updateStatusMutation.isPending}>Mark as Reviewed</Button>
+                  <Button onClick={() => updateStatusMutation.mutate({ newStatus: 'Reviewed' })} disabled={updateStatusMutation.isPending}>
+                    Finish Review
+                  </Button>
                 )}
-                {(report.status === 'Pending' || report.status === 'Reviewed') && (
+                {report.status === 'Reviewed' && (
                   <>
-                    <Button onClick={() => updateStatusMutation.mutate({ newStatus: 'Resolved' })} variant="secondary" disabled={updateStatusMutation.isPending}>Approve (Resolve)</Button>
-                    <Button onClick={() => updateStatusMutation.mutate({ newStatus: 'Rejected' })} variant="destructive" disabled={updateStatusMutation.isPending}>Reject</Button>
+                    <Button onClick={() => updateStatusMutation.mutate({ newStatus: 'Resolved' })} variant="secondary" disabled={updateStatusMutation.isPending}>
+                      Approve & Publish
+                    </Button>
+                    <Button onClick={() => updateStatusMutation.mutate({ newStatus: 'Rejected' })} variant="destructive" disabled={updateStatusMutation.isPending}>
+                      Reject Report
+                    </Button>
                   </>
                 )}
                 {(report.status === 'Resolved' || report.status === 'Rejected') && (
