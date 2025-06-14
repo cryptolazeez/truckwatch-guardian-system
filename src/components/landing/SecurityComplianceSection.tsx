@@ -28,7 +28,11 @@ const SecurityComplianceSection = () => {
             </ul>
           </div>
           <div className="md:w-1/2 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            <img src="/lovable-uploads/2cb1c6b2-779d-4eb3-9843-827204a3f9a8.png" alt="Security and Compliance" className="rounded-lg shadow-xl object-cover w-full h-auto max-h-[450px]" />
+            <img 
+              src="https://images.unsplash.com/photo-1505156868547-9b4b81df4e5e?q=80&w=800&auto=format&fit=crop" 
+              alt="Mobile phone displaying a user profile screen" 
+              className="rounded-lg shadow-xl object-cover w-full h-auto max-h-[450px]" 
+            />
           </div>
         </div>
       </div>
