@@ -1,10 +1,18 @@
+
 import { Link } from "react-router-dom";
 import { Users, FileText, LogIn, Menu, Home, FileSearch, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
 
-const navItems = [
+interface NavItemType {
+  href: string;
+  label: string;
+  icon: React.ElementType;
+  alwaysShowIcon?: boolean; // Made optional
+}
+
+const navItems: NavItemType[] = [
   { href: "/", label: "Home", icon: Home },
   { href: "/report-incident", label: "File Complaint", icon: FileText },
   { href: "/view-reports", label: "View Reports", icon: FileSearch },
