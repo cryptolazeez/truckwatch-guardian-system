@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { LucideProps } from 'lucide-react';
 
 interface DashboardStatCardProps {
-  title: string;
+  title: string; // This prop will still be required but its value won't be directly displayed as the title anymore.
   value: string | number;
   icon: React.ElementType<LucideProps>;
   iconColor?: string;
@@ -15,7 +15,7 @@ const DashboardStatCard: React.FC<DashboardStatCardProps> = ({ title, value, ico
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        <CardTitle className="text-sm font-medium">Driver Tracked</CardTitle> {/* Changed {title} to "Driver Tracked" */}
         <Icon className={`h-5 w-5 ${iconColor}`} />
       </CardHeader>
       <CardContent>
