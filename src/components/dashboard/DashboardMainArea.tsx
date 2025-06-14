@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { ReportListItem, ReportStatus } from '@/types'; // ReportStatus might not be directly used here, but ReportListItem is
-import { AlertTriangle, CheckCircle, FileText, Users, Eye, Briefcase } from 'lucide-react';
+import { ReportListItem, ReportStatus } from '@/types';
+import { AlertTriangle, CheckCircle, FileText, Users, Eye } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -12,8 +11,8 @@ import { Link } from 'react-router-dom';
 import { Skeleton } from "@/components/ui/skeleton";
 import UserProfileWidget from './UserProfileWidget';
 import NotificationsWidget from './NotificationsWidget';
-// import MiniCalendarWidget from './MiniCalendarWidget'; // Assuming this might be added later or was there before
-// import AnalyticsChart from './AnalyticsChart'; // Assuming this might be added later or was there before
+// import MiniCalendarWidget from './MiniCalendarWidget';
+// import AnalyticsChart from './AnalyticsChart';
 
 const getStatusVariant = (status: ReportStatus): "default" | "secondary" | "destructive" | "outline" => {
   switch (status) {
@@ -81,7 +80,7 @@ const DashboardMainArea: React.FC = () => {
 
   return (
     <main className="flex-1 p-6 space-y-6 bg-gray-50 dark:bg-gray-900 overflow-y-auto">
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
         <UserProfileWidget />
         <NotificationsWidget />
         {/* <MiniCalendarWidget /> */}
