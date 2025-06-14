@@ -15,8 +15,8 @@ const HowItWorksSection = () => {
             title="Report Incident"
             description="Trucking companies submit detailed incident reports through our secure platform, categorizing by employment defaults, safety violations, theft, or professional misconduct."
             details={["Employment Defaults", "Safety Violations", "Theft/Criminal", "Misconduct"]}
-            imgSrc="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?q=80&w=1000&auto=format&fit=crop"
-            imgAlt="Person reporting an incident using a laptop"
+            imgSrc="https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1000&auto=format&fit=crop"
+            imgAlt="Laptop screen displaying interface for incident reporting"
           />
           <HowItWorksStep
             num="2"
@@ -51,3 +51,4 @@ const HowItWorksSection = () => {
 };
 
 export default HowItWorksSection;
+
