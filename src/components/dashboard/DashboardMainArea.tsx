@@ -27,7 +27,7 @@ const getStatusVariant = (status: ReportStatus): "default" | "secondary" | "dest
 
 const DashboardMainArea: React.FC = () => {
   const { data: reports, isLoading: isLoadingReports, error: reportsError } = useQuery<ReportListItem[], Error>({
-    queryKey: ['reportsForDashboardMain'], // Changed queryKey to be more specific if it's a subset
+    queryKey: ['reportsForDashboardMain'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('reports')
@@ -36,13 +36,13 @@ const DashboardMainArea: React.FC = () => {
           created_at,
           driver_first_name,
           driver_last_name,
-          cdl_number, /* <<< Added cdl_number */
+          cdl_number,
           incident_type,
           status,
           company_name_making_report
         `)
         .order('created_at', { ascending: false })
-        .limit(10); // Limiting to 10 for recent reports display
+        .limit(10);
 
       if (error) {
         console.error("Error fetching reports:", error);
@@ -52,7 +52,7 @@ const DashboardMainArea: React.FC = () => {
         id: report.id,
         created_at: report.created_at,
         driver_name: `${report.driver_first_name || ''} ${report.driver_last_name || ''}`.trim() || 'N/A',
-        cdl_number: report.cdl_number, // <<< Added cdl_number mapping
+        cdl_number: report.cdl_number,
         incident_type: report.incident_type,
         status: report.status as ReportStatus,
         company_name_making_report: report.company_name_making_report,
