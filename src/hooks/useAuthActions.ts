@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -56,7 +55,7 @@ export const useAuthActions = () => {
 
       const userRole = roleData?.role;
       if (userRole === 'moderator' || userRole === 'admin') {
-        navigate('/dashboard');
+        navigate('/moderator-dashboard');
       } else {
         navigate('/');
       }
@@ -146,4 +145,3 @@ export const useAuthActions = () => {
     handleLogout, // Export the new logout handler
   };
 };
-

@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LogIn, UserPlus, Loader2 } from "lucide-react";
@@ -24,7 +25,7 @@ const AuthPage = () => {
     // when they land on the /auth page.
     if (!isRoleLoading && user) {
       if (isModerator) {
-        navigate('/dashboard', { replace: true });
+        navigate('/moderator-dashboard', { replace: true });
       } else {
         navigate('/', { replace: true });
       }

@@ -1,9 +1,10 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
-import LandingPage from "./pages/LandingPage"; // Renamed from Index
+import LandingPage from "./pages/LandingPage";
 import DriverProfilesPage from "./pages/DriverProfilesPage";
 import ReportIncidentPage from "./pages/ReportIncidentPage";
 import ViewReportsPage from "./pages/ViewReportsPage";
@@ -11,6 +12,10 @@ import AuthPage from "./pages/AuthPage";
 import ReportDetailPage from "./pages/ReportDetailPage";
 import NotFound from "./pages/NotFound";
 import Header from "./components/layout/Header";
+import ModeratorLoginPage from "./pages/ModeratorLoginPage";
+import NotAuthorizedPage from "./pages/NotAuthorizedPage";
+import ModeratorDashboardPage from "./pages/ModeratorDashboardPage";
+import ModeratorGuard from "./components/moderator/ModeratorGuard";
 
 const queryClient = new QueryClient();
 
@@ -37,14 +42,16 @@ const App = () => (
             <Route path="/report-incident" element={<ReportIncidentPage />} />
             <Route path="/view-reports" element={<ViewReportsPage />} />
             <Route path="/auth" element={<AuthPage />} />
-            <Route path="/reports/:id" element={<ReportDetailPage />} />
-            {/* 
-              Placeholder routes for privacy and terms, you can create these pages later 
-              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-              <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-            */}
+            <Route path="/moderator-login" element={<ModeratorLoginPage />} />
+            <Route path="/not-authorized" element={<NotAuthorizedPage />} />
+            
+            {/* Protected Moderator Routes */}
+            <Route element={<ModeratorGuard />}>
+              <Route path="/moderator-dashboard" element={<ModeratorDashboardPage />} />
+              <Route path="/reports/:id" element={<ReportDetailPage />} />
+            </Route>
+
           </Route>
-          {/* ADD ALL CUSTOM ROUTES INSIDE AppLayout or create new Layout routes */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

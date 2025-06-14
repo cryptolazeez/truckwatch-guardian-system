@@ -55,15 +55,15 @@ const Header = () => {
     if (session) {
       return (
         <Button variant="outline" asChild>
-          <Link to="/dashboard"> {/* This still correctly links to /dashboard */}
-            <ShieldAlert className="mr-2 h-4 w-4" /> Moderator Login
+          <Link to="/moderator-dashboard">
+            <ShieldAlert className="mr-2 h-4 w-4" /> Moderator Dashboard
           </Link>
         </Button>
       );
     }
     return (
       <Button variant="outline" asChild>
-        <Link to="/auth">
+        <Link to="/moderator-login">
           <Users className="mr-2 h-4 w-4" /> Moderator Login
         </Link>
       </Button>
