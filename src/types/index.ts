@@ -37,9 +37,15 @@ export interface Report {
 // For ViewReportsPage, we might only select a subset of fields
 export interface ReportListItem {
   id: string;
-  created_at: string;
+  created_at: string; // Submission timestamp
   driver_name: string; // Combination of first and last
+  driver_first_name?: string | null; // For potential individual use
+  driver_last_name?: string | null; // For potential individual use
+  cdl_number: string;
   incident_type: IncidentType;
+  date_occurred: string; // Date of the incident
+  location: string;
+  description: string;
   status: ReportStatus;
   company_name_making_report: string;
 }
