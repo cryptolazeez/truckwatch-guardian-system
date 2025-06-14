@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -10,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Search as SearchIcon } from "lucide-react";
+import { Search as SearchIcon, Filter } from "lucide-react";
 import { ReportStatus as ReportStatusType } from '@/types';
 
 interface ReportSearchFiltersProps {
@@ -39,30 +38,27 @@ const ReportSearchFilters: React.FC<ReportSearchFiltersProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-          <div className="md:col-span-1">
-            <label htmlFor="search-term" className="block text-sm font-medium text-muted-foreground mb-1">
-              Search by driver name, CDL#, or company
-            </label>
+        <div className="flex flex-col md:flex-row gap-4 items-center">
+          <div className="flex-grow w-full">
             <Input
               id="search-term"
               type="text"
-              placeholder="Driver, CDL#, Company..."
+              placeholder="Search by driver name or company..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full"
             />
           </div>
-          <div className="md:col-span-1">
-            <label htmlFor="status-filter" className="block text-sm font-medium text-muted-foreground mb-1">
-              Filter by status
-            </label>
+          <div className="w-full md:w-auto">
             <Select
               value={selectedStatus}
               onValueChange={(value: ReportStatusType | "All") => handleStatusChange(value)}
             >
-              <SelectTrigger id="status-filter" className="w-full">
-                <SelectValue placeholder="Filter by status" />
+              <SelectTrigger id="status-filter" className="w-full md:w-[180px]">
+                <div className="flex items-center gap-2">
+                  <Filter className="h-4 w-4 text-muted-foreground" />
+                  <SelectValue placeholder="All Reports" />
+                </div>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="All">All Reports</SelectItem>
@@ -72,10 +68,10 @@ const ReportSearchFilters: React.FC<ReportSearchFiltersProps> = ({
               </SelectContent>
             </Select>
           </div>
-          <div className="md:col-span-1">
-              <Button onClick={handleSearchButtonClick} className="w-full">
-                  <SearchIcon className="mr-2 h-4 w-4" /> Search
-              </Button>
+          <div className="w-full md:w-auto">
+            <Button onClick={handleSearchButtonClick} className="w-full">
+              Search
+            </Button>
           </div>
         </div>
       </CardContent>
@@ -84,4 +80,3 @@ const ReportSearchFilters: React.FC<ReportSearchFiltersProps> = ({
 };
 
 export default ReportSearchFilters;
-
