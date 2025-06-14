@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,17 +42,35 @@ const AuthPage = () => {
               <CardTitle>Login to TruckWatch</CardTitle>
               <CardDescription>Access your company dashboard or driver profile.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 py-6">
               <div>
                 <Label htmlFor="email-login">Email</Label>
                 <Input id="email-login" type="email" placeholder="you@example.com" />
               </div>
               <div>
-                <Label htmlFor="password-login">Password</Label>
+                <div className="flex items-center justify-between mb-1">
+                  <Label htmlFor="password-login">Password</Label>
+                  <Button variant="link" size="sm" className="px-0 h-auto text-primary hover:underline text-xs">
+                    Forgot Password?
+                  </Button>
+                </div>
                 <Input id="password-login" type="password" placeholder="••••••••" />
               </div>
+              
+              <Button variant="outline" className="w-full">
+                {/* Icon can be added here if desired, e.g. <img src="/google-icon.svg" alt="Google" className="mr-2 h-4 w-4" /> */}
+                Sign in with Google
+              </Button>
+              
               <Button type="submit" className="w-full">Login</Button>
-              <p className="text-sm text-center text-muted-foreground">
+              
+              <div className="flex items-center pt-2">
+                <div className="flex-grow border-t border-border" />
+                <span className="mx-4 text-xs uppercase text-muted-foreground">OR SIGN UP</span>
+                <div className="flex-grow border-t border-border" />
+              </div>
+              
+              <p className="text-sm text-center text-muted-foreground pt-2">
                 This is a placeholder. Full authentication will be implemented with Supabase.
               </p>
             </CardContent>
@@ -95,4 +112,3 @@ const AuthPage = () => {
 };
 
 export default AuthPage;
-
