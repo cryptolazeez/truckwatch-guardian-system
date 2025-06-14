@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, ShieldAlert, Users, FilePenLine, ArrowRight, TrendingUp, Briefcase, UserCheck, Search, ShieldCheck, Zap, Target, BarChart3, Building, UserCog, Lock, Layers, Award } from "lucide-react"; // Added more icons
@@ -159,8 +158,8 @@ const LandingPage = () => {
               title="Report Incident"
               description="Trucking companies submit detailed incident reports through our secure platform, categorizing by employment defaults, safety violations, theft, or professional misconduct."
               details={["Employment Defaults", "Safety Violations", "Theft/Criminal", "Misconduct"]}
-              imgSrc="/lovable-uploads/855633b9-2e4a-426e-8543-93696e44bb6a.png"
-              imgAlt="Reporting an incident"
+              imgSrc="https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1000&auto=format&fit=crop"
+              imgAlt="Reporting an incident on a laptop"
             />
             <HowItWorksStep
               num="2"
@@ -333,4 +332,3 @@ const LandingPage = () => {
 };
 
 export default LandingPage;
-
