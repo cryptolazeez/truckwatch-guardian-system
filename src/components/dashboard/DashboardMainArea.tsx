@@ -9,7 +9,7 @@ import UserProfileWidget from './UserProfileWidget';
 import DashboardStatCard from './DashboardStatCard';
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ListChecks, Hourglass, UserCheck, CheckCircle2, Eye, Loader2 } from "lucide-react";
+import { ListChecks, Hourglass, UserCheck, CheckCircle2, Eye, Loader2, Users } from "lucide-react";
 import { format } from 'date-fns';
 
 const fetchDashboardReports = async (): Promise<ReportListItem[]> => {
@@ -106,14 +106,21 @@ const DashboardMainArea = () => {
           </div>
 
           {/* Report Overview Section */}
-          <div className="bg-muted p-6 rounded-lg shadow"> {/* Changed bg-white to bg-muted */}
+          <div className="bg-muted p-6 rounded-lg shadow">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-gray-700">Report Overview</h2>
-              <Button asChild variant="outline" size="sm">
-                <Link to="/view-reports">
-                  <Eye className="mr-2 h-4 w-4" /> View All Reports
-                </Link>
-              </Button>
+              <div className="flex gap-2">
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/view-reports">
+                    <Eye className="mr-2 h-4 w-4" /> View All Reports
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/drivers">
+                    <Users className="mr-2 h-4 w-4" /> Driver Profiles
+                  </Link>
+                </Button>
+              </div>
             </div>
             
             {isLoadingReports && (
