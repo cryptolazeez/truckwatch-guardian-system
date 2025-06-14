@@ -11,13 +11,17 @@ interface DetailCardProps {
   items?: string[];
   cardColor?: string;
   iconColor?: string;
+  animationDelay?: string; // Added animationDelay prop
 }
 
-const DetailCard = ({ icon: Icon, title, description, items, cardColor, iconColor }: DetailCardProps) => (
-  <Card className={cn(
-    "text-left transform transition-all hover:scale-105 hover:shadow-xl animate-fade-in-up flex flex-col",
-    cardColor ? cardColor : "bg-card" // Apply cardColor if provided, else default
-  )}>
+const DetailCard = ({ icon: Icon, title, description, items, cardColor, iconColor, animationDelay }: DetailCardProps) => (
+  <Card
+    className={cn(
+      "text-left transform transition-all hover:scale-105 hover:shadow-xl animate-fade-in-up flex flex-col",
+      cardColor ? cardColor : "bg-card"
+    )}
+    style={{ animationDelay }} // Apply animationDelay
+  >
     <CardHeader>
       <div className="mb-3">
         <Icon className={cn("h-10 w-10", iconColor ? iconColor : "text-primary")} />

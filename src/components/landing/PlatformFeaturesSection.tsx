@@ -1,5 +1,5 @@
 
-import { ShieldCheck, ClipboardUser, FileWarning, FileSearch, UsersCog, Gavel } from "lucide-react";
+import { ShieldCheck, Clipboard, FileWarning, FileSearch, UserCog, Gavel } from "lucide-react";
 import DetailCard from './DetailCard';
 
 const PlatformFeaturesSection = () => {
@@ -22,7 +22,7 @@ const PlatformFeaturesSection = () => {
 
   const features = [
     {
-      icon: ClipboardUser,
+      icon: Clipboard, // Corrected: ClipboardUser to Clipboard
       title: "Driver Profile Management",
       description: "Comprehensive driver profiles with CDL information, employment history, and contact details.",
       items: ["Full name & DOB tracking", "CDL number & state issuance", "Employment history records", "Optional contact information"],
@@ -46,7 +46,7 @@ const PlatformFeaturesSection = () => {
       items: ["CDL number lookup", "Driver name search", "Verified history reports", "Secure access controls"],
     },
     {
-      icon: UsersCog,
+      icon: UserCog, // Corrected: UsersCog to UserCog
       title: "Role-Based Access",
       description: "Sophisticated access management with multi-factor authentication and role-based permissions.",
       items: ["OAuth authentication", "Multi-factor authentication", "Admin/Company/Driver roles", "Permission controls"],
@@ -76,11 +76,7 @@ const PlatformFeaturesSection = () => {
               items={feature.items}
               cardColor={cardColors[index % cardColors.length]}
               iconColor={iconColors[index % iconColors.length]}
-              // The DetailCard already has 'animate-fade-in-up'. Adding delay here.
-              // The style prop is not explicitly defined in DetailCardProps, but React components accept it.
-              // To be more type-safe, DetailCardProps could be extended to include `style?: React.CSSProperties`.
-              // For now, this will work as standard HTML attributes are passed down.
-              style={{ animationDelay: `${0.2 + index * 0.1}s` }}
+              animationDelay={`${0.2 + index * 0.1}s`}
             />
           ))}
         </div>
