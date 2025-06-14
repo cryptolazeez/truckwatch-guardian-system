@@ -77,9 +77,11 @@ export type Database = {
           description: string
           driver_email: string | null
           driver_first_name: string | null
+          driver_id_license_url: string | null
           driver_last_name: string | null
           driver_phone: string | null
           id: string
+          incident_proofs_urls: string[] | null
           incident_type: Database["public"]["Enums"]["incident_type_enum"]
           location: string
           reporter_profile_id: string | null
@@ -96,9 +98,11 @@ export type Database = {
           description: string
           driver_email?: string | null
           driver_first_name?: string | null
+          driver_id_license_url?: string | null
           driver_last_name?: string | null
           driver_phone?: string | null
           id?: string
+          incident_proofs_urls?: string[] | null
           incident_type: Database["public"]["Enums"]["incident_type_enum"]
           location: string
           reporter_profile_id?: string | null
@@ -115,9 +119,11 @@ export type Database = {
           description?: string
           driver_email?: string | null
           driver_first_name?: string | null
+          driver_id_license_url?: string | null
           driver_last_name?: string | null
           driver_phone?: string | null
           id?: string
+          incident_proofs_urls?: string[] | null
           incident_type?: Database["public"]["Enums"]["incident_type_enum"]
           location?: string
           reporter_profile_id?: string | null

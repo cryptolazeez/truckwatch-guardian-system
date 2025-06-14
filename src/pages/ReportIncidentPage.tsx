@@ -45,6 +45,8 @@ const ReportIncidentPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   // userProfile state can still be used to store profile if user is logged in
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null); 
+  const [driverIdLicenseFile, setDriverIdLicenseFile] = useState<File | null>(null);
+  const [incidentProofsFiles, setIncidentProofsFiles] = useState<File[]>([]);
   const { toast } = useToast();
 
   const { register, handleSubmit, control, formState: { errors }, reset, setValue } = useForm<ReportIncidentFormValues>({
@@ -92,6 +94,36 @@ const ReportIncidentPage = () => {
     }
 
     try {
+      let driverIdLicenseUrl: string | undefined = undefined;
+      if (driverIdLicenseFile) {
+        const fileExt = driverIdLicenseFile.name.split('.').pop();
+        const fileName = `license-${Date.now()}.${fileExt}`;
+        const { error: uploadError, data: uploadData } = await supabase.storage
+          .from('incident_files')
+          .upload(fileName, driverIdLicenseFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage.from('incident_files').getPublicUrl(uploadData.path);
+        driverIdLicenseUrl = urlData.publicUrl;
+      }
+
+      const incidentProofsUrls: string[] = [];
+      if (incidentProofsFiles.length > 0) {
+        for (const file of incidentProofsFiles) {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `proof-${Date.now()}-${Math.random()}.${fileExt}`;
+          const { error: uploadError, data: uploadData } = await supabase.storage
+            .from('incident_files')
+            .upload(fileName, file);
+
+          if (uploadError) throw uploadError;
+          
+          const { data: urlData } = supabase.storage.from('incident_files').getPublicUrl(uploadData.path);
+          incidentProofsUrls.push(urlData.publicUrl);
+        }
+      }
+      
       const reportData = {
         reporter_profile_id: currentUserId, // Will be null if no user is logged in
         driver_first_name: values.driverFirstName,
@@ -106,6 +138,8 @@ const ReportIncidentPage = () => {
         company_name_making_report: values.companyName, // This is required from the form
         company_phone_making_report: values.companyPhone,
         company_email_making_report: values.companyEmail,
+        driver_id_license_url: driverIdLicenseUrl,
+        incident_proofs_urls: incidentProofsUrls.length > 0 ? incidentProofsUrls : undefined,
         // status is defaulted to 'Pending' by the database
       };
 
@@ -116,7 +150,9 @@ const ReportIncidentPage = () => {
       }
 
       toast({ title: "Success", description: "Incident report submitted successfully." });
-      reset(); 
+      reset();
+      setDriverIdLicenseFile(null);
+      setIncidentProofsFiles([]);
       // If a logged-in user submitted, their company name might have been pre-filled.
       // If they change it and submit, then reset, it should reset to blank or pre-fill again if they are still logged in.
       // For truly anonymous, it just resets.
@@ -184,14 +220,21 @@ const ReportIncidentPage = () => {
               </div>
             </div>
             <div>
-              <Label htmlFor="driverIdLicense">Driver ID/License (Optional - Not Implemented)</Label>
+              <Label htmlFor="driverIdLicense">Driver ID/License (Optional)</Label>
               <div className="flex items-center justify-center w-full">
                   <label htmlFor="driverIdLicenseFile" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted hover:bg-muted/80 transition-colors">
                       <div className="flex flex-col items-center justify-center pt-5 pb-6">
                           <FileUp className="w-8 h-8 mb-2 text-muted-foreground" />
-                          <p className="mb-1 text-sm text-muted-foreground">File upload not implemented</p>
+                          {driverIdLicenseFile ? (
+                              <p className="mb-1 text-sm text-green-600 font-semibold">{driverIdLicenseFile.name}</p>
+                          ) : (
+                            <>
+                              <p className="mb-1 text-sm text-muted-foreground">Click to upload driver's license</p>
+                              <p className="text-xs text-muted-foreground">PNG, JPG, PDF (MAX. 5MB)</p>
+                            </>
+                          )}
                       </div>
-                      <Input id="driverIdLicenseFile" type="file" className="hidden" disabled />
+                      <Input id="driverIdLicenseFile" type="file" className="hidden" onChange={(e) => setDriverIdLicenseFile(e.target.files ? e.target.files[0] : null)} />
                   </label>
               </div>
             </div>
@@ -246,16 +289,32 @@ const ReportIncidentPage = () => {
               {errors.incidentDescription && <p className="text-red-500 text-sm mt-1">{errors.incidentDescription.message}</p>}
             </div>
             <div>
-              <Label htmlFor="incidentProofs">Upload Incident Proofs (Optional - Not Implemented)</Label>
+              <Label htmlFor="incidentProofs">Upload Incident Proofs (Optional)</Label>
                <div className="flex items-center justify-center w-full">
                   <label htmlFor="incidentProofsFile" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted hover:bg-muted/80 transition-colors">
                       <div className="flex flex-col items-center justify-center pt-5 pb-6">
                           <FileUp className="w-8 h-8 mb-2 text-muted-foreground" />
-                          <p className="mb-1 text-sm text-muted-foreground">File upload not implemented</p>
+                          {incidentProofsFiles.length > 0 ? (
+                            <p className="mb-1 text-sm text-green-600 font-semibold">{incidentProofsFiles.length} file(s) selected</p>
+                          ) : (
+                            <>
+                              <p className="mb-1 text-sm text-muted-foreground">Click to upload proofs</p>
+                              <p className="text-xs text-muted-foreground">PNG, JPG, PDF, MP4 (MAX. 5MB)</p>
+                            </>
+                          )}
                       </div>
-                      <Input id="incidentProofsFile" type="file" className="hidden" multiple disabled />
+                      <Input id="incidentProofsFile" type="file" className="hidden" multiple onChange={(e) => setIncidentProofsFiles(e.target.files ? Array.from(e.target.files) : [])} />
                   </label>
               </div>
+              {incidentProofsFiles.length > 0 && (
+                <div className="mt-2 space-y-1">
+                  {incidentProofsFiles.map((file, index) => (
+                    <p key={index} className="text-sm text-muted-foreground truncate">
+                      - {file.name}
+                    </p>
+                  ))}
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

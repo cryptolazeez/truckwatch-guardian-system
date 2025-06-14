@@ -34,6 +34,8 @@ export interface Report {
   company_phone_making_report?: string | null;
   company_email_making_report?: string | null;
   status: ReportStatus;
+  driver_id_license_url?: string | null;
+  incident_proofs_urls?: string[] | null;
 }
 
 // For ViewReportsPage, we might only select a subset of fields
@@ -52,6 +54,8 @@ export interface ReportListItem {
   description: string;
   status: ReportStatus;
   company_name_making_report: string;
+  driver_id_license_url?: string | null;
+  incident_proofs_urls?: string[] | null;
 }
 
 // Updated Notification interface to align with the database schema
