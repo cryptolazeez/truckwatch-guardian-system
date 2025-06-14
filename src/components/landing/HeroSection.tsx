@@ -1,8 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Building2, ShieldCheck, Clock, BadgeCheck } from 'lucide-react';
-import HeroStatCard from './HeroStatCard';
+import TruckLoader from './TruckLoader';
 
 const HeroSection = () => {
   return (
@@ -28,11 +27,8 @@ const HeroSection = () => {
             </Button>
           </div>
         </div>
-        <div className="animate-fade-in-up md:animate-fade-in grid grid-cols-2 gap-4" style={{ animationDelay: '0.2s' }}>
-          <HeroStatCard icon={Building2} title="Target Companies" value="50+" />
-          <HeroStatCard icon={ShieldCheck} title="Risk Reduction" value="85%" />
-          <HeroStatCard icon={Clock} title="Platform Access" value="24/7" />
-          <HeroStatCard icon={BadgeCheck} title="FCRA Compliant" value="100%" />
+        <div className="animate-fade-in-up md:animate-fade-in flex justify-center items-center" style={{ animationDelay: '0.2s' }}>
+          <TruckLoader />
         </div>
       </div>
     </section>
