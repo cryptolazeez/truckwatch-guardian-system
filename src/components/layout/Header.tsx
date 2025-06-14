@@ -15,12 +15,7 @@ const AuthButtons = () => (
   <div className="flex items-center gap-2">
     <Button variant="outline" asChild>
       <Link to="/auth">
-        <LogIn className="mr-2 h-4 w-4" /> Login
-      </Link>
-    </Button>
-    <Button asChild>
-      <Link to="/auth#register">
-        Register
+        <Users className="mr-2 h-4 w-4" /> Moderator Login
       </Link>
     </Button>
   </div>
