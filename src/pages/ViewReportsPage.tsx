@@ -1,4 +1,5 @@
 
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   TableHeader,
@@ -9,7 +10,16 @@ import {
   TableCaption,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Eye, FileSearch } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Eye, FileSearch, Search as SearchIcon, Filter } from "lucide-react"; // Added SearchIcon and Filter
 import { Link } from "react-router-dom";
 
 interface Report {
@@ -29,7 +39,36 @@ const mockReports: Report[] = [
   { id: "RPT005", dateSubmitted: "2025-06-14", driverName: "David Brown", incidentType: "Employment Defaults", status: "Rejected", companyName: "Quick Haul Inc." },
 ];
 
+const reportStatuses: Report["status"][] = ["Pending", "Reviewed", "Resolved", "Rejected"];
+
 const ViewReportsPage = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState<Report["status"] | "All">("All");
+  const [filteredReports, setFilteredReports] = useState<Report[]>(mockReports);
+
+  const handleSearch = () => {
+    let reports = mockReports;
+
+    if (searchTerm) {
+      reports = reports.filter(report =>
+        report.driverName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        report.companyName.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (selectedStatus !== "All") {
+      reports = reports.filter(report => report.status === selectedStatus);
+    }
+    setFilteredReports(reports);
+  };
+  
+  // Effect to apply search when searchTerm or selectedStatus changes, if you want live filtering
+  // For now, we use a search button as per typical dashboard patterns.
+  // useEffect(() => {
+  //   handleSearch();
+  // }, [searchTerm, selectedStatus]);
+
+
   return (
     <div className="container mx-auto py-8 px-4 md:px-6">
       <div className="mb-8">
@@ -42,8 +81,59 @@ const ViewReportsPage = () => {
         </p>
       </div>
 
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <SearchIcon className="mr-2 h-6 w-6" />
+            Search Reports
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            <div className="md:col-span-2">
+              <label htmlFor="search-term" className="block text-sm font-medium text-muted-foreground mb-1">
+                Search by driver name or company
+              </label>
+              <Input
+                id="search-term"
+                type="text"
+                placeholder="Search by driver name or company..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full"
+              />
+            </div>
+            <div>
+              <label htmlFor="status-filter" className="block text-sm font-medium text-muted-foreground mb-1">
+                Filter by status
+              </label>
+              <Select
+                value={selectedStatus}
+                onValueChange={(value: Report["status"] | "All") => setSelectedStatus(value)}
+              >
+                <SelectTrigger id="status-filter" className="w-full">
+                  <Filter className="mr-2 h-4 w-4 opacity-50" />
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">All Reports</SelectItem>
+                  {reportStatuses.map(status => (
+                    <SelectItem key={status} value={status}>{status}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="md:col-start-3">
+              <Button onClick={handleSearch} className="w-full md:w-auto">
+                <SearchIcon className="mr-2 h-4 w-4" /> Search
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <Table>
-        <TableCaption>A list of submitted incident reports.</TableCaption>
+        <TableCaption>A list of submitted incident reports. {filteredReports.length === 0 && "No reports match your criteria."}</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead>Report ID</TableHead>
@@ -56,7 +146,7 @@ const ViewReportsPage = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {mockReports.map((report) => (
+          {filteredReports.map((report) => (
             <TableRow key={report.id}>
               <TableCell className="font-medium">{report.id}</TableCell>
               <TableCell>{report.dateSubmitted}</TableCell>
@@ -66,17 +156,16 @@ const ViewReportsPage = () => {
               <TableCell>
                 <span
                   className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                    report.status === "Pending" ? "bg-yellow-100 text-yellow-800" :
-                    report.status === "Reviewed" ? "bg-blue-100 text-blue-800" :
-                    report.status === "Resolved" ? "bg-green-100 text-green-800" :
-                    report.status === "Rejected" ? "bg-red-100 text-red-800" : ""
+                    report.status === "Pending" ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300" :
+                    report.status === "Reviewed" ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300" :
+                    report.status === "Resolved" ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300" :
+                    report.status === "Rejected" ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300" : ""
                   }`}
                 >
                   {report.status}
                 </span>
               </TableCell>
               <TableCell className="text-right">
-                {/* Placeholder for view details link/button */}
                 <Button variant="outline" size="sm" asChild>
                   <Link to={`/view-reports/${report.id}`}>
                     <Eye className="mr-2 h-4 w-4" /> View
