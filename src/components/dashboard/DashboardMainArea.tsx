@@ -20,7 +20,11 @@ const fetchDashboardReports = async (): Promise<ReportListItem[]> => {
       created_at,
       driver_first_name,
       driver_last_name,
+      cdl_number,          -- Added
       incident_type,
+      date_occurred,       -- Added
+      location,            -- Added
+      description,         -- Added
       status,
       company_name_making_report
     `)
@@ -35,7 +39,13 @@ const fetchDashboardReports = async (): Promise<ReportListItem[]> => {
     id: report.id,
     created_at: report.created_at,
     driver_name: `${report.driver_first_name || ''} ${report.driver_last_name || ''}`.trim() || 'N/A',
+    driver_first_name: report.driver_first_name,
+    driver_last_name: report.driver_last_name,
+    cdl_number: report.cdl_number, // Added
     incident_type: report.incident_type as IncidentType,
+    date_occurred: report.date_occurred, // Added
+    location: report.location, // Added
+    description: report.description, // Added
     status: report.status as ReportStatusType,
     company_name_making_report: report.company_name_making_report,
   }));
