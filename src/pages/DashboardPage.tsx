@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -95,7 +96,7 @@ const DashboardPage = () => {
         </h1>
         <p className="text-muted-foreground mt-1">
           Overview of platform activity and report statuses.
-        </p>
+        p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
