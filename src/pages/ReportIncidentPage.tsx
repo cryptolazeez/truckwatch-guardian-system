@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,14 +11,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { FileUp, AlertTriangle, User, Info, BuildingIcon } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { IncidentType } from '@/types'; // Assuming types.ts is created
+import { IncidentType } from '@/types'; 
+import { Constants } from '@/integrations/supabase/types';
 
-const incidentTypes: IncidentType[] = [
-  'aggressive_driving', 'reckless_driving', 'road_rage', 'unsafe_lane_change',
-  'speeding', 'tailgating', 'distracted_driving', 'failure_to_signal',
-  'blocking_traffic', 'employment_defaults', 'safety_violations',
-  'theft_criminal_activities', 'professional_misconduct', 'other'
-];
+// Use the enum definition from Constants for populating the Select component
+const incidentTypesForSelect = Constants.public.Enums.incident_type_enum;
 
 const reportIncidentSchema = z.object({
   driverFirstName: z.string().optional(),
@@ -28,7 +24,8 @@ const reportIncidentSchema = z.object({
   driverEmail: z.string().email("Invalid email address").optional().or(z.literal('')),
   driverPhone: z.string().optional(),
   
-  incidentType: z.enum(incidentTypes, { required_error: "Incident type is required" }),
+  // Use the enum definition from Constants for Zod validation
+  incidentType: z.enum(Constants.public.Enums.incident_type_enum, { required_error: "Incident type is required" }),
   dateOccurred: z.string().min(1, "Date occurred is required"), // Consider z.date() if using a date picker that provides Date object
   location: z.string().min(1, "Location is required"),
   incidentDescription: z.string().min(1, "Description is required"),
@@ -52,8 +49,9 @@ const ReportIncidentPage = () => {
 
   const { register, handleSubmit, control, formState: { errors }, reset, setValue } = useForm<ReportIncidentFormValues>({
     resolver: zodResolver(reportIncidentSchema),
-    defaultValues: { // Initialize defaultValues for controlled components like Select
-      incidentType: undefined, // Or a default valid IncidentType if you have one
+    defaultValues: { 
+      // incidentType is now correctly typed via the schema
+      incidentType: undefined, 
     },
   });
 
@@ -72,49 +70,51 @@ const ReportIncidentPage = () => {
           toast({ title: "Error", description: "Could not fetch your profile.", variant: "destructive" });
         } else if (profile) {
           setUserProfile(profile);
-          // Pre-fill company details if available from profile, and if form fields are empty
           if (profile.company_name) {
              setValue('companyName', profile.company_name, { shouldValidate: true });
           }
         }
       } else {
+        // If "open source" where login is not compulsory, this part needs rethinking.
+        // For now, keeping it as is, will address after SQL changes for open access.
         toast({ title: "Authentication Required", description: "Please log in to report an incident.", variant: "destructive" });
-        // Potentially redirect to login page
       }
     };
     fetchUserProfile();
   }, [toast, setValue]);
 
   const onSubmit = async (values: ReportIncidentFormValues) => {
+    // This check will need to be adjusted if anonymous submissions are allowed
     if (!userProfile) {
       toast({ title: "Error", description: "User profile not loaded. Cannot submit report.", variant: "destructive" });
       return;
     }
     setIsLoading(true);
     try {
-      const { error } = await supabase.from('reports').insert([
-        {
-          reporter_profile_id: userProfile.id,
-          driver_first_name: values.driverFirstName,
-          driver_last_name: values.driverLastName,
-          cdl_number: values.cdlNumber,
-          incident_type: values.incidentType,
-          date_occurred: values.dateOccurred,
-          location: values.location,
-          description: values.incidentDescription,
-          company_name_making_report: values.companyName,
-          company_phone_making_report: values.companyPhone,
-          company_email_making_report: values.companyEmail,
-          // status is defaulted to 'Pending' by the database
-        },
-      ]);
+      const reportData = {
+        reporter_profile_id: userProfile.id, // This field will be problematic if anonymous
+        driver_first_name: values.driverFirstName,
+        driver_last_name: values.driverLastName,
+        cdl_number: values.cdlNumber,
+        incident_type: values.incidentType, // This is now correctly typed
+        date_occurred: values.dateOccurred,
+        location: values.location,
+        description: values.incidentDescription,
+        company_name_making_report: values.companyName,
+        company_phone_making_report: values.companyPhone,
+        company_email_making_report: values.companyEmail,
+        // status is defaulted to 'Pending' by the database
+      };
+
+      // The insert call should now work as values.incidentType is correctly typed
+      const { error } = await supabase.from('reports').insert([reportData]);
 
       if (error) {
         throw error;
       }
 
       toast({ title: "Success", description: "Incident report submitted successfully." });
-      reset(); // Reset form fields
+      reset(); 
     } catch (error: any) {
       console.error("Error submitting report:", error);
       toast({ title: "Submission Failed", description: error.message || "Could not submit the report.", variant: "destructive" });
@@ -203,12 +203,13 @@ const ReportIncidentPage = () => {
                   name="incidentType"
                   control={control}
                   render={({ field }) => (
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
                       <SelectTrigger id="incidentType">
                         <SelectValue placeholder="Select incident type" />
                       </SelectTrigger>
                       <SelectContent>
-                        {incidentTypes.map(type => (
+                        {/* Use incidentTypesForSelect (from Constants) for populating */}
+                        {incidentTypesForSelect.map(type => (
                           <SelectItem key={type} value={type}>
                             {type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                           </SelectItem>
@@ -288,4 +289,3 @@ const ReportIncidentPage = () => {
 };
 
 export default ReportIncidentPage;
-
