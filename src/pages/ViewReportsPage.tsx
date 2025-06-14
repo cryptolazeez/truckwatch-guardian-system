@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   Table,
@@ -19,8 +18,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Eye, FileSearch, Search as SearchIcon, Filter } from "lucide-react"; // Added SearchIcon and Filter
+import { Eye, FileSearch, Search as SearchIcon, Filter, ListChecks, Hourglass, CheckCircle2, XCircle, UserCheck } from "lucide-react";
 import { Link } from "react-router-dom";
+import DashboardStatCard from "@/components/dashboard/DashboardStatCard";
 
 interface Report {
   id: string;
@@ -37,6 +37,8 @@ const mockReports: Report[] = [
   { id: "RPT003", dateSubmitted: "2025-06-12", driverName: "Mike Johnson", incidentType: "Unsafe Lane Change", status: "Resolved", companyName: "Safe Transports" },
   { id: "RPT004", dateSubmitted: "2025-06-13", driverName: "Sarah Williams", incidentType: "Aggressive Driving", status: "Pending", companyName: "Reliable Freight" },
   { id: "RPT005", dateSubmitted: "2025-06-14", driverName: "David Brown", incidentType: "Employment Defaults", status: "Rejected", companyName: "Quick Haul Inc." },
+  { id: "RPT006", dateSubmitted: "2025-06-14", driverName: "Chris Green", incidentType: "Speeding", status: "Pending", companyName: "Logistics Pros" },
+  { id: "RPT007", dateSubmitted: "2025-06-15", driverName: "Emily White", incidentType: "Reckless Driving", status: "Resolved", companyName: "Reliable Freight" },
 ];
 
 const reportStatuses: Report["status"][] = ["Pending", "Reviewed", "Resolved", "Rejected"];
@@ -45,6 +47,13 @@ const ViewReportsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<Report["status"] | "All">("All");
   const [filteredReports, setFilteredReports] = useState<Report[]>(mockReports);
+
+  // Calculate summary statistics
+  const totalReports = mockReports.length;
+  const pendingReportsCount = mockReports.filter(r => r.status === "Pending").length;
+  const reviewedReportsCount = mockReports.filter(r => r.status === "Reviewed").length;
+  const resolvedReportsCount = mockReports.filter(r => r.status === "Resolved").length;
+  const rejectedReportsCount = mockReports.filter(r => r.status === "Rejected").length;
 
   const handleSearch = () => {
     let reports = mockReports;
@@ -68,7 +77,6 @@ const ViewReportsPage = () => {
   //   handleSearch();
   // }, [searchTerm, selectedStatus]);
 
-
   return (
     <div className="container mx-auto py-8 px-4 md:px-6">
       <div className="mb-8">
@@ -81,11 +89,52 @@ const ViewReportsPage = () => {
         </p>
       </div>
 
+      {/* Dashboard Summary Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
+        <DashboardStatCard 
+          title="Total Reports" 
+          value={totalReports} 
+          icon={ListChecks} 
+          description={`${mockReports.length} reports overall`}
+        />
+        <DashboardStatCard 
+          title="Pending Review" 
+          value={pendingReportsCount} 
+          icon={Hourglass} 
+          iconColor="text-yellow-500"
+          description={`${pendingReportsCount} reports awaiting action`}
+        />
+        <DashboardStatCard 
+          title="Reviewed Reports" 
+          value={reviewedReportsCount} 
+          icon={UserCheck} 
+          iconColor="text-blue-500"
+          description={`${reviewedReportsCount} reports have been reviewed`}
+        />
+        <DashboardStatCard 
+          title="Resolved Reports" 
+          value={resolvedReportsCount} 
+          icon={CheckCircle2} 
+          iconColor="text-green-500"
+          description={`${resolvedReportsCount} reports successfully closed`}
+        />
+         {/* You can add more cards, for example, for rejected reports */}
+         {/* 
+         <DashboardStatCard 
+           title="Rejected Reports" 
+           value={rejectedReportsCount} 
+           icon={XCircle} 
+           iconColor="text-red-500"
+           description={`${rejectedReportsCount} reports were rejected`}
+         /> 
+         */}
+      </div>
+
       <Card className="mb-8">
         <CardHeader>
           <CardTitle className="flex items-center">
             <SearchIcon className="mr-2 h-6 w-6" />
-            Search Reports
+            Search & Filter Reports
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -181,4 +230,3 @@ const ViewReportsPage = () => {
 };
 
 export default ViewReportsPage;
-
