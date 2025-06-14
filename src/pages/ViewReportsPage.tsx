@@ -14,7 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import BackButton from '@/components/layout/BackButton';
 import { useSearchParams } from 'react-router-dom';
 
-const reportStatuses: ReportStatusType[] = ["Pending", "Reviewed", "Resolved", "Rejected"];
+const reportStatuses: ReportStatusType[] = ["Pending", "Reviewed", "Resolved", "Rejected", "info_requested"];
 
 const fetchReports = async (): Promise<ReportListItem[]> => {
   const { data, error } = await supabase
@@ -30,7 +30,8 @@ const fetchReports = async (): Promise<ReportListItem[]> => {
       location,
       description,
       status,
-      company_name_making_report
+      company_name_making_report,
+      moderator_notes
     `)
     .order('created_at', { ascending: false });
 
@@ -52,6 +53,7 @@ const fetchReports = async (): Promise<ReportListItem[]> => {
     description: report.description || 'No description provided.',
     status: report.status as ReportStatusType,
     company_name_making_report: report.company_name_making_report || 'N/A',
+    moderator_notes: report.moderator_notes
   }));
 };
 

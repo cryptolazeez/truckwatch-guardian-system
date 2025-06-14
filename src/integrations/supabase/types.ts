@@ -84,6 +84,7 @@ export type Database = {
           incident_proofs_urls: string[] | null
           incident_type: Database["public"]["Enums"]["incident_type_enum"]
           location: string
+          moderator_notes: string | null
           reporter_profile_id: string | null
           status: Database["public"]["Enums"]["report_status_enum"]
           updated_at: string
@@ -105,6 +106,7 @@ export type Database = {
           incident_proofs_urls?: string[] | null
           incident_type: Database["public"]["Enums"]["incident_type_enum"]
           location: string
+          moderator_notes?: string | null
           reporter_profile_id?: string | null
           status?: Database["public"]["Enums"]["report_status_enum"]
           updated_at?: string
@@ -126,6 +128,7 @@ export type Database = {
           incident_proofs_urls?: string[] | null
           incident_type?: Database["public"]["Enums"]["incident_type_enum"]
           location?: string
+          moderator_notes?: string | null
           reporter_profile_id?: string | null
           status?: Database["public"]["Enums"]["report_status_enum"]
           updated_at?: string
@@ -195,7 +198,12 @@ export type Database = {
         | "theft_criminal_activities"
         | "professional_misconduct"
         | "other"
-      report_status_enum: "Pending" | "Reviewed" | "Resolved" | "Rejected"
+      report_status_enum:
+        | "Pending"
+        | "Reviewed"
+        | "Resolved"
+        | "Rejected"
+        | "info_requested"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -328,7 +336,13 @@ export const Constants = {
         "professional_misconduct",
         "other",
       ],
-      report_status_enum: ["Pending", "Reviewed", "Resolved", "Rejected"],
+      report_status_enum: [
+        "Pending",
+        "Reviewed",
+        "Resolved",
+        "Rejected",
+        "info_requested",
+      ],
     },
   },
 } as const

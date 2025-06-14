@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,8 +8,10 @@ import { useToast } from '@/hooks/use-toast';
 import BackButton from '@/components/layout/BackButton';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Loader2, XCircle, FileText, Image as ImageIcon, Link as LinkIcon, Download } from 'lucide-react';
+import { Loader2, XCircle, FileText, Image as ImageIcon, Link as LinkIcon, Download, Save } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 const fetchReportById = async (id: string): Promise<Report | null> => {
     const { data, error } = await supabase
@@ -31,12 +33,19 @@ const ReportDetailPage: React.FC = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { isModerator, isLoading: isLoadingRole } = useUserRole();
+  const [moderatorNotes, setModeratorNotes] = useState('');
 
   const { data: report, isLoading, isError, error } = useQuery<Report | null, Error>({
     queryKey: ['report', id],
     queryFn: () => fetchReportById(id!),
     enabled: !!id,
   });
+
+  useEffect(() => {
+    if (report?.moderator_notes) {
+      setModeratorNotes(report.moderator_notes);
+    }
+  }, [report]);
 
   const updateStatusMutation = useMutation({
     mutationFn: async ({ newStatus }: { newStatus: ReportStatus }) => {
@@ -57,6 +66,30 @@ const ReportDetailPage: React.FC = () => {
     onError: (err: Error) => {
       toast({
         title: "Update Failed",
+        description: err.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateNotesMutation = useMutation({
+    mutationFn: async ({ notes }: { notes: string }) => {
+      const { error: updateError } = await supabase
+        .from('reports')
+        .update({ moderator_notes: notes })
+        .eq('id', id!);
+      if (updateError) throw updateError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['report', id] });
+      toast({
+        title: "Notes Saved",
+        description: "Moderator notes have been successfully saved.",
+      });
+    },
+    onError: (err: Error) => {
+      toast({
+        title: "Save Failed",
         description: err.message,
         variant: "destructive",
       });
@@ -110,6 +143,19 @@ const ReportDetailPage: React.FC = () => {
     );
   };
   
+  const getStatusBadgeVariant = (status: ReportStatus) => {
+    switch (status) {
+      case 'Resolved':
+        return 'default';
+      case 'Rejected':
+        return 'destructive';
+      case 'info_requested':
+        return 'secondary';
+      default:
+        return 'outline';
+    }
+  };
+  
   return (
     <div className="container mx-auto py-8 px-4 md:px-6">
       <BackButton />
@@ -120,7 +166,7 @@ const ReportDetailPage: React.FC = () => {
               <CardTitle>Report Details</CardTitle>
               <CardDescription>ID: {report.id}</CardDescription>
             </div>
-            <Badge variant={report.status === 'Resolved' ? 'default' : 'outline'}>{report.status}</Badge>
+            <Badge variant={getStatusBadgeVariant(report.status)}>{report.status}</Badge>
           </div>
         </CardHeader>
         <CardContent className="grid gap-6 md:grid-cols-2">
@@ -166,19 +212,38 @@ const ReportDetailPage: React.FC = () => {
           {isModerator && (
             <div className="md:col-span-2 border-t pt-6 space-y-4">
               <h3 className="font-semibold text-lg">Moderator Actions</h3>
-              <div className="flex flex-wrap gap-2">
-                {report.status === 'Pending' && (
-                  <Button onClick={() => updateStatusMutation.mutate({ newStatus: 'Reviewed' })} disabled={updateStatusMutation.isPending}>
-                    Finish Review
-                  </Button>
-                )}
-                {report.status === 'Reviewed' && (
+
+              <div className="space-y-2">
+                <Label htmlFor="moderator-notes">Moderator Notes</Label>
+                <Textarea
+                  id="moderator-notes"
+                  placeholder="Add internal notes for this report..."
+                  value={moderatorNotes}
+                  onChange={(e) => setModeratorNotes(e.target.value)}
+                  rows={4}
+                  className="bg-muted/20"
+                />
+                <Button
+                  onClick={() => updateNotesMutation.mutate({ notes: moderatorNotes })}
+                  disabled={updateNotesMutation.isPending}
+                  size="sm"
+                >
+                  {updateNotesMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                  Save Notes
+                </Button>
+              </div>
+
+              <div className="flex flex-wrap gap-2 pt-4 border-t">
+                {(report.status === 'Pending' || report.status === 'Reviewed' || report.status === 'info_requested') && (
                   <>
-                    <Button onClick={() => updateStatusMutation.mutate({ newStatus: 'Resolved' })} variant="secondary" disabled={updateStatusMutation.isPending}>
-                      Approve & Publish
+                    <Button onClick={() => updateStatusMutation.mutate({ newStatus: 'Resolved' })} disabled={updateStatusMutation.isPending}>
+                      Approve
                     </Button>
                     <Button onClick={() => updateStatusMutation.mutate({ newStatus: 'Rejected' })} variant="destructive" disabled={updateStatusMutation.isPending}>
-                      Reject Report
+                      Reject
+                    </Button>
+                     <Button onClick={() => updateStatusMutation.mutate({ newStatus: 'info_requested' })} variant="secondary" disabled={updateStatusMutation.isPending}>
+                      Request More Info
                     </Button>
                   </>
                 )}

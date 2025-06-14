@@ -1,4 +1,4 @@
-export type ReportStatus = 'Pending' | 'Reviewed' | 'Resolved' | 'Rejected';
+export type ReportStatus = 'Pending' | 'Reviewed' | 'Resolved' | 'Rejected' | 'info_requested';
 
 export type IncidentType = 
   | 'aggressive_driving'
@@ -36,6 +36,7 @@ export interface Report {
   status: ReportStatus;
   driver_id_license_url?: string | null;
   incident_proofs_urls?: string[] | null;
+  moderator_notes?: string | null;
 }
 
 // For ViewReportsPage, we might only select a subset of fields
@@ -56,6 +57,7 @@ export interface ReportListItem {
   company_name_making_report: string;
   driver_id_license_url?: string | null;
   incident_proofs_urls?: string[] | null;
+  moderator_notes?: string | null;
 }
 
 // Updated Notification interface to align with the database schema
