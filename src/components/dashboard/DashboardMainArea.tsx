@@ -106,7 +106,7 @@ const DashboardMainArea = () => {
           </div>
 
           {/* Report Overview Section */}
-          <div className="bg-white p-6 rounded-lg shadow">
+          <div className="bg-muted p-6 rounded-lg shadow"> {/* Changed bg-white to bg-muted */}
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-gray-700">Report Overview</h2>
               <Button asChild variant="outline" size="sm">

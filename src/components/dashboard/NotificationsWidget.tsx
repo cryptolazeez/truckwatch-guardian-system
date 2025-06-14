@@ -1,159 +1,139 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { Notification } from '@/integrations/supabase/types';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { BellRing, CalendarClock, AlertCircle, Info, CheckCircle, Loader2 } from 'lucide-react';
 import { formatDistanceToNowStrict } from 'date-fns';
-import { Tables } from '@/integrations/supabase/types'; // Import the auto-generated types
-import { Skeleton } from "@/components/ui/skeleton"; // For loading state
 
-interface NotificationItemProps {
-  id: string;
-  logo: string | null;
-  title: string;
-  message: string;
-  source: string | null;
-  time: string; // This will be the formatted time string
-  isNew?: boolean | null;
-  linkTo?: string | null;
-}
+const fetchNotifications = async (): Promise<Notification[]> => {
+  const { data, error } = await supabase
+    .from('notifications')
+    .select('*')
+    .order('notification_time', { ascending: false })
+    .limit(5);
 
-const NotificationItem: React.FC<NotificationItemProps> = ({ id, logo, title, message, source, time, isNew, linkTo }) => (
-  <div className="flex items-start space-x-3 py-3 border-b border-gray-200 last:border-b-0">
-    <div className="w-10 h-10 rounded bg-blue-600 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
-      {logo || title.substring(0, 2).toUpperCase()}
-    </div>
-    <div className="flex-grow">
-      <Link to={linkTo || "#"} className="hover:no-underline">
-        <div className="flex justify-between items-center">
-          <h4 className="font-semibold text-sm text-gray-800 hover:text-primary transition-colors">{title}</h4>
-          {isNew && <span className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 ml-2"></span>}
-        </div>
-        <p className="text-sm text-gray-600">{message}</p>
-        {source && <p className="text-xs text-gray-400">{source}</p>}
-        <p className="text-xs text-gray-400 mt-0.5">{time}</p>
-      </Link>
-    </div>
-  </div>
-);
+  if (error) {
+    console.error("Error fetching notifications:", error);
+    throw error;
+  }
+
+  return data || [];
+};
 
 const NotificationsWidget = () => {
-  const [notifications, setNotifications] = useState<NotificationItemProps[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchNotifications = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('notifications')
-        .select('*')
-        .order('notification_time', { ascending: false })
-        .limit(5); // Limit to 5 notifications for the widget
-
-      if (error) {
-        console.error('Error fetching notifications:', error);
-        toast({
-          title: 'Error',
-          description: 'Could not fetch notifications.',
-          variant: 'destructive',
-        });
-        setNotifications([]);
-      } else if (data) {
-        const formattedNotifications = data.map((n: Tables<'notifications'>) => ({
-          id: n.id,
-          logo: n.logo,
-          title: n.title,
-          message: n.message,
-          source: n.source,
-          time: formatDistanceToNowStrict(new Date(n.notification_time), { addSuffix: true }),
-          isNew: n.is_new,
-          linkTo: n.link_to,
-        }));
-        setNotifications(formattedNotifications);
+    const loadNotifications = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const initialNotifications = await fetchNotifications();
+        setNotifications(initialNotifications);
+      } catch (err: any) {
+        setError(err.message || 'Failed to load notifications.');
+        console.error("Failed to fetch notifications:", err);
+      } finally {
+        setIsLoading(false);
       }
-      setLoading(false);
     };
 
-    fetchNotifications();
+    loadNotifications();
 
-    const channel = supabase
+    const notificationsSubscription = supabase
       .channel('public:notifications')
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'notifications' },
+        { event: '*', schema: 'public', table: 'notifications' },
         (payload) => {
-          console.log('New notification received:', payload);
-          const newNotification = payload.new as Tables<'notifications'>;
-          // Add to the beginning of the list and keep it to 5 items
-          setNotifications((prevNotifications) => [
-            {
-              id: newNotification.id,
-              logo: newNotification.logo,
-              title: newNotification.title,
-              message: newNotification.message,
-              source: newNotification.source,
-              time: formatDistanceToNowStrict(new Date(newNotification.notification_time), { addSuffix: true }),
-              isNew: newNotification.is_new,
-              linkTo: newNotification.link_to,
-            },
-            ...prevNotifications,
-          ].slice(0, 5));
-          toast({
-            title: "New Notification",
-            description: newNotification.title,
-          });
+          console.log('Change received!', payload)
+          loadNotifications();
         }
       )
-      .subscribe((status, err) => {
-        if (status === 'SUBSCRIBED') {
-          console.log('Subscribed to notifications channel!');
-        }
-        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-          console.error('Error subscribing to notifications:', err);
-          toast({
-            title: 'Real-time Error',
-            description: 'Could not connect to real-time notification updates. Please refresh.',
-            variant: 'destructive',
-          });
-        }
-      });
+      .subscribe()
 
     return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [toast]);
+      supabase.removeChannel(notificationsSubscription)
+    }
+  }, []);
+
+  const getIcon = (logo?: string) => {
+    switch (logo) {
+      case 'calendar':
+        return <CalendarClock className="h-5 w-5" />;
+      case 'alert':
+        return <AlertCircle className="h-5 w-5" />;
+      case 'info':
+        return <Info className="h-5 w-5" />;
+      case 'check':
+        return <CheckCircle className="h-5 w-5" />;
+      default:
+        return null;
+    }
+  };
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow h-full flex flex-col">
-      <h3 className="text-lg font-semibold text-gray-700 mb-3">Notifications</h3>
-      {loading ? (
-        <div className="space-y-3 flex-grow">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="flex items-start space-x-3 py-3">
-              <Skeleton className="w-10 h-10 rounded" />
-              <div className="flex-grow space-y-2">
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-3 w-full" />
-                <Skeleton className="h-3 w-1/2" />
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : notifications.length === 0 ? (
-        <p className="text-sm text-gray-500 flex-grow flex items-center justify-center">No new notifications.</p>
-      ) : (
-        <div className="space-y-1 flex-grow overflow-y-auto pr-1"> {/* Added pr-1 for scrollbar space if needed */}
-          {notifications.map((notification) => (
-            <NotificationItem key={notification.id} {...notification} />
-          ))}
-        </div>
+    <Card className="bg-slate-50 dark:bg-slate-800 overflow-hidden shadow-lg animate-fade-in">
+      <CardHeader className="border-b">
+        <CardTitle className="flex items-center text-lg">
+          <BellRing className="mr-2 h-5 w-5 text-primary" />
+          Recent Notifications
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="p-0 max-h-80 overflow-y-auto">
+        {isLoading && (
+          <div className="p-4 space-y-2">
+            <div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-md h-4 w-3/4"></div>
+            <div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-md h-3 w-5/6"></div>
+            <div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-md h-3 w-1/2"></div>
+          </div>
+        )}
+        {!isLoading && error && (
+          <div className="p-4 text-red-500">
+            Error: {error}
+          </div>
+        )}
+        {!isLoading && !error && notifications.length === 0 && (
+          <div className="p-4 text-gray-500 dark:text-gray-400">
+            No new notifications.
+          </div>
+        )}
+        {!isLoading && !error && notifications.length > 0 && (
+          <ul className="divide-y">
+            {notifications.map((notification) => (
+              <li key={notification.id} className={`p-4 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors ${notification.is_new ? 'bg-primary/5 dark:bg-primary/10' : ''}`}>
+                <a href={notification.link_to || '#'} className="flex items-start space-x-3 group">
+                  <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center text-sm font-semibold ${notification.logo && notification.logo.length <= 3 ? 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300' : ''}`}>
+                    {notification.logo && notification.logo.length <= 3 ? notification.logo : getIcon(notification.logo)}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{notification.title}</p>
+                    <p className="text-xs text-muted-foreground">{notification.message}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {formatDistanceToNowStrict(new Date(notification.notification_time), { addSuffix: true })}
+                      {notification.source && ` • ${notification.source}`}
+                    </p>
+                  </div>
+                  {notification.is_new && (
+                    <span className="h-2 w-2 rounded-full bg-primary mt-1 animate-pulse"></span>
+                  )}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </CardContent>
+      {notifications.length > 0 && !isLoading && !error && (
+        <CardFooter className="border-t p-3">
+          <Button variant="ghost" size="sm" className="w-full text-primary hover:text-primary">
+            View all notifications
+          </Button>
+        </CardFooter>
       )}
-      <div className="mt-4 text-center border-t border-gray-200 pt-3">
-        <Link to="#" className="text-sm text-primary hover:underline">
-          View all notifications &gt;
-        </Link>
-      </div>
-    </div>
+    </Card>
   );
 };
 
