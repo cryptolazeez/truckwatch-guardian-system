@@ -5,20 +5,21 @@ import { LogIn, UserPlus } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 import { Session } from "@supabase/supabase-js";
 
-import LoginForm, { LoginFormValues } from '@/components/auth/LoginForm';
-import RegisterForm, { RegisterFormValues } from '@/components/auth/RegisterForm';
+import LoginForm from '@/components/auth/LoginForm';
+import RegisterForm from '@/components/auth/RegisterForm';
 import GoogleLoginButton from '@/components/auth/GoogleLoginButton';
+import { useAuthActions } from '@/hooks/useAuthActions'; // Import the new hook
 
 const AuthPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("login");
-  const [isLoading, setIsLoading] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
+
+  // Use the custom hook for auth actions and isLoading state
+  const { isLoading, handleLogin, handleRegister, handleGoogleLogin } = useAuthActions();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -53,82 +54,12 @@ const AuthPage = () => {
     });
   };
 
-  const handleLogin = async (values: LoginFormValues) => {
-    setIsLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email: values.email,
-      password: values.password,
-    });
-    setIsLoading(false);
-    if (error) {
-      toast({
-        title: "Login Failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Login Successful",
-        description: "Welcome back!",
-      });
-      // navigate("/"); // Session listener will also handle this
-    }
-  };
+  // The handleLogin, handleRegister, and handleGoogleLogin functions are now provided by the useAuthActions hook
+  // isLoading state is also provided by the hook
 
-  const handleRegister = async (values: RegisterFormValues) => {
-    setIsLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email: values.email,
-      password: values.password,
-      options: {
-        data: {
-          companyName: values.companyName || null,
-        },
-        emailRedirectTo: `${window.location.origin}/`,
-      },
-    });
-    setIsLoading(false);
-    if (error) {
-      toast({
-        title: "Registration Failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Registration Successful",
-        description: "Please check your email to confirm your account.",
-      });
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    setIsLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/`,
-      },
-    });
-    // setIsLoading(false); // Setting this false might happen before redirect, so user might see button re-enabled briefly.
-                         // Supabase handles redirection, so page will change.
-                         // If there's an error, we show it. Otherwise, redirection occurs.
-    if (error) {
-      setIsLoading(false); // Only set loading false if there's an error and no redirect.
-      toast({
-        title: "Google Login Failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-    // No explicit setIsLoading(false) on success path because redirection should occur.
-  };
-
-  if (session && !location.pathname.startsWith("/auth")) { // Redirect if session exists and not on auth page already
-    // This check can be more robust depending on routing setup
+  if (session && !location.pathname.startsWith("/auth")) {
     return null; 
   }
-
 
   return (
     <div className="container mx-auto py-8 px-4 md:px-6 flex items-center justify-center min-h-[calc(100vh-150px)]">
