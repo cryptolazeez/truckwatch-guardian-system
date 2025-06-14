@@ -1,11 +1,10 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileUp, AlertTriangle, User, Info, BuildingIcon } from "lucide-react"; // Added User, Info, BuildingIcon
+import { FileUp, AlertTriangle, User, Info, BuildingIcon } from "lucide-react";
 
 const ReportIncidentPage = () => {
   return (
@@ -22,12 +21,12 @@ const ReportIncidentPage = () => {
       <form className="space-y-8 max-w-3xl mx-auto">
         {/* Driver Information Card */}
         <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center text-xl">
-              <User className="mr-2 h-5 w-5 text-primary" /> Driver Information
+          <CardHeader className="bg-sky-50 rounded-t-lg">
+            <CardTitle className="flex items-center text-xl text-sky-700">
+              <User className="mr-2 h-5 w-5 text-sky-600" /> Driver Information
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-6 pt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <Label htmlFor="driverFirstName">Driver First Name *</Label>
@@ -72,12 +71,12 @@ const ReportIncidentPage = () => {
 
         {/* Incident Information Card */}
         <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center text-xl">
-              <Info className="mr-2 h-5 w-5 text-primary" /> Incident Information
+          <CardHeader className="bg-amber-50 rounded-t-lg">
+            <CardTitle className="flex items-center text-xl text-amber-700">
+              <Info className="mr-2 h-5 w-5 text-amber-600" /> Incident Information
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-6 pt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <Label htmlFor="incidentType">Incident Type *</Label>
@@ -126,12 +125,12 @@ const ReportIncidentPage = () => {
 
         {/* Your Company Information Card */}
         <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center text-xl">
-              <BuildingIcon className="mr-2 h-5 w-5 text-primary" /> Your Company Information (Required)
+          <CardHeader className="bg-teal-50 rounded-t-lg">
+            <CardTitle className="flex items-center text-xl text-teal-700">
+              <BuildingIcon className="mr-2 h-5 w-5 text-teal-600" /> Your Company Information (Required)
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-6 pt-6">
             <div>
               <Label htmlFor="companyName">Company Name *</Label>
               <Input id="companyName" type="text" placeholder="Your company name" required />
