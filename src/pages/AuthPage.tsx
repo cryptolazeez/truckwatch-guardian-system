@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label"; // Will be replaced by FormLabel
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { LogIn, UserPlus } from "lucide-react";
+import { LogIn, UserPlus, ChromeIcon } from "lucide-react"; // Added ChromeIcon for Google
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -141,7 +141,26 @@ const AuthPage = () => {
       // For now, we stay on the auth page, tab might switch based on URL
     }
   };
-  
+
+  const handleGoogleLogin = async () => {
+    setIsLoading(true);
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/`, // Important: Redirect back to your app's home
+      },
+    });
+    setIsLoading(false);
+    if (error) {
+      toast({
+        title: "Google Login Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+    // No success toast here, as Supabase handles redirection. User will be redirected to Google.
+  };
+
   if (session) { // if session is already active, redirect immediately
     return null; // Or a loading spinner
   }
@@ -197,6 +216,20 @@ const AuthPage = () => {
                   </Button>
                 </form>
               </Form>
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-lime-100 px-2 text-muted-foreground">
+                    Or continue with
+                  </span>
+                </div>
+              </div>
+              <Button variant="outline" className="w-full" onClick={handleGoogleLogin} disabled={isLoading}>
+                <ChromeIcon className="mr-2 h-4 w-4" /> {/* Using ChromeIcon as a stand-in for Google logo */}
+                {isLoading ? "Redirecting..." : "Sign in with Google"}
+              </Button>
                <p className="text-sm text-center text-muted-foreground pt-4">
                 Login functionality is now connected to Supabase.
               </p>
