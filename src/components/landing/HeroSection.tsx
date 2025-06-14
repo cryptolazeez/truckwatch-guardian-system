@@ -1,6 +1,8 @@
+
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
+import { Building2, ShieldCheck, Clock, BadgeCheck } from 'lucide-react';
+import HeroStatCard from './HeroStatCard';
 
 const HeroSection = () => {
   return (
@@ -26,30 +28,11 @@ const HeroSection = () => {
             </Button>
           </div>
         </div>
-        <div className="animate-fade-in-up md:animate-fade-in" style={{ animationDelay: '0.2s' }}>
-          <Card className="bg-white/10 backdrop-blur-sm p-6 shadow-2xl">
-            <CardHeader>
-              <CardTitle className="text-2xl text-primary-foreground">Industry Impact</CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-2 gap-6 text-primary-foreground">
-              <div>
-                <p className="text-4xl font-bold text-yellow-400">50+</p>
-                <p className="text-sm">Target Companies</p>
-              </div>
-              <div>
-                <p className="text-4xl font-bold text-yellow-400">85%</p>
-                <p className="text-sm">Risk Reduction</p>
-              </div>
-              <div>
-                <p className="text-4xl font-bold text-yellow-400">24/7</p>
-                <p className="text-sm">Platform Access</p>
-              </div>
-              <div>
-                <p className="text-4xl font-bold text-yellow-400">100%</p>
-                <p className="text-sm">FCRA Compliant</p>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="animate-fade-in-up md:animate-fade-in grid grid-cols-2 gap-4" style={{ animationDelay: '0.2s' }}>
+          <HeroStatCard icon={Building2} title="Target Companies" value="50+" />
+          <HeroStatCard icon={ShieldCheck} title="Risk Reduction" value="85%" />
+          <HeroStatCard icon={Clock} title="Platform Access" value="24/7" />
+          <HeroStatCard icon={BadgeCheck} title="FCRA Compliant" value="100%" />
         </div>
       </div>
     </section>
