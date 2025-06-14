@@ -1,8 +1,15 @@
-
 import { ShieldCheck } from "lucide-react";
 import ListItem from './ListItem';
 
 const SecurityComplianceSection = () => {
+  const complianceItems = ['FCRA Compliant', 'DOT Regulations', 'GDPR Ready', 'SOC 2 Type II'];
+  const colors = [
+    'bg-sky-100 hover:bg-sky-200',
+    'bg-emerald-100 hover:bg-emerald-200',
+    'bg-amber-100 hover:bg-amber-200',
+    'bg-rose-100 hover:bg-rose-200',
+  ];
+
   return (
     <section className="w-full py-16 md:py-24 bg-white">
       <div className="container px-4 md:px-6">
@@ -13,8 +20,8 @@ const SecurityComplianceSection = () => {
               Built with the highest security standards and full regulatory compliance to protect sensitive driver data and ensure legal adherence.
             </p>
             <div className="grid grid-cols-2 gap-4 mb-6">
-              {['FCRA Compliant', 'DOT Regulations', 'GDPR Ready', 'SOC 2 Type II'].map(item => (
-                <div key={item} className="bg-slate-100 p-4 rounded-lg text-center hover:shadow-md transition-shadow">
+              {complianceItems.map((item, index) => (
+                <div key={item} className={`${colors[index % colors.length]} p-4 rounded-lg text-center hover:shadow-md transition-shadow`}>
                   <ShieldCheck className="h-8 w-8 text-primary mx-auto mb-2"/>
                   <p className="text-sm font-medium">{item}</p>
                 </div>
