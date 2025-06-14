@@ -1,8 +1,64 @@
 
-import { Users, FilePenLine, ShieldCheck, Search, UserCog, Layers } from "lucide-react";
+import { ShieldCheck, ClipboardUser, FileWarning, FileSearch, UsersCog, Gavel } from "lucide-react";
 import DetailCard from './DetailCard';
 
 const PlatformFeaturesSection = () => {
+  const cardColors = [
+    "bg-sky-50",
+    "bg-emerald-50",
+    "bg-amber-50",
+    "bg-rose-50",
+    "bg-indigo-50",
+    "bg-fuchsia-50",
+  ];
+  const iconColors = [
+    "text-sky-600",
+    "text-emerald-600",
+    "text-amber-600",
+    "text-rose-600",
+    "text-indigo-600",
+    "text-fuchsia-600",
+  ];
+
+  const features = [
+    {
+      icon: ClipboardUser,
+      title: "Driver Profile Management",
+      description: "Comprehensive driver profiles with CDL information, employment history, and contact details.",
+      items: ["Full name & DOB tracking", "CDL number & state issuance", "Employment history records", "Optional contact information"],
+    },
+    {
+      icon: FileWarning,
+      title: "Incident Reporting",
+      description: "Structured reporting system with evidence upload and categorization for accurate documentation.",
+      items: ["Categorized incident types", "Supporting evidence upload", "Date & description tracking", "Mandatory field validation"],
+    },
+    {
+      icon: ShieldCheck,
+      title: "Verification Workflow",
+      description: "Rigorous admin moderation ensures accuracy and fairness in all reported incidents.",
+      items: ["Admin review process", "Driver notification system", "Dispute resolution", "Appeals workflow"],
+    },
+    {
+      icon: FileSearch,
+      title: "Secure Search & Reports",
+      description: "Advanced search capabilities with comprehensive reporting for informed decision-making.",
+      items: ["CDL number lookup", "Driver name search", "Verified history reports", "Secure access controls"],
+    },
+    {
+      icon: UsersCog,
+      title: "Role-Based Access",
+      description: "Sophisticated access management with multi-factor authentication and role-based permissions.",
+      items: ["OAuth authentication", "Multi-factor authentication", "Admin/Company/Driver roles", "Permission controls"],
+    },
+    {
+      icon: Gavel,
+      title: "Compliance Monitoring",
+      description: "Built-in compliance tools ensuring adherence to FCRA, DOT, and privacy regulations.",
+      items: ["FCRA compliance", "DOT regulations", "GDPR ready", "Audit trail and logging"],
+    },
+  ];
+
   return (
     <section className="w-full py-16 md:py-24 bg-white">
       <div className="container px-4 md:px-6">
@@ -11,42 +67,22 @@ const PlatformFeaturesSection = () => {
           Comprehensive toolset designed specifically for the trucking industry's unique hiring challenges.
         </p>
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          <DetailCard
-            icon={Users}
-            title="Driver Profile Management"
-            description="Comprehensive driver profiles with CDL information, employment history, and contact details."
-            items={["Full name & DOB tracking", "CDL number & state issuance", "Employment history records", "Optional contact information"]}
-          />
-          <DetailCard
-            icon={FilePenLine}
-            title="Incident Reporting"
-            description="Structured reporting system with evidence upload and categorization for accurate documentation."
-            items={["Categorized incident types", "Supporting evidence upload", "Date & description tracking", "Mandatory field validation"]}
-          />
-          <DetailCard
-            icon={ShieldCheck}
-            title="Verification Workflow"
-            description="Rigorous admin moderation ensures accuracy and fairness in all reported incidents."
-            items={["Admin review process", "Driver notification system", "Dispute resolution", "Appeals workflow"]}
-          />
-           <DetailCard
-            icon={Search}
-            title="Secure Search & Reports"
-            description="Advanced search capabilities with comprehensive reporting for informed decision-making."
-            items={["CDL number lookup", "Driver name search", "Verified history reports", "Secure access controls"]}
-          />
-          <DetailCard
-            icon={UserCog}
-            title="Role-Based Access"
-            description="Sophisticated access management with multi-factor authentication and role-based permissions."
-            items={["OAuth authentication", "Multi-factor authentication", "Admin/Company/Driver roles", "Permission controls"]}
-          />
-          <DetailCard
-            icon={Layers}
-            title="Compliance Monitoring"
-            description="Built-in compliance tools ensuring adherence to FCRA, DOT, and privacy regulations."
-            items={["FCRA compliance", "DOT regulations", "GDPR ready", "Audit trail and logging"]}
-          />
+          {features.map((feature, index) => (
+            <DetailCard
+              key={feature.title}
+              icon={feature.icon}
+              title={feature.title}
+              description={feature.description}
+              items={feature.items}
+              cardColor={cardColors[index % cardColors.length]}
+              iconColor={iconColors[index % iconColors.length]}
+              // The DetailCard already has 'animate-fade-in-up'. Adding delay here.
+              // The style prop is not explicitly defined in DetailCardProps, but React components accept it.
+              // To be more type-safe, DetailCardProps could be extended to include `style?: React.CSSProperties`.
+              // For now, this will work as standard HTML attributes are passed down.
+              style={{ animationDelay: `${0.2 + index * 0.1}s` }}
+            />
+          ))}
         </div>
       </div>
     </section>
