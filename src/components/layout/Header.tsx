@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Users, FileText, LogIn, Menu, Home, FileSearch, Truck, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -57,7 +58,7 @@ const Header = () => {
       return (
         <Button variant="outline" asChild>
           <Link to="/dashboard">
-            <ShieldAlert className="mr-2 h-4 w-4" /> Dashboard
+            <ShieldAlert className="mr-2 h-4 w-4" /> Moderator Login
           </Link>
         </Button>
       );
@@ -139,3 +140,4 @@ const Header = () => {
 };
 
 export default Header;
+
