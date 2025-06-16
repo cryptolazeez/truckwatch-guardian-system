@@ -1,12 +1,13 @@
-
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, FileText, Clock, CheckCircle, ShieldAlert } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Loader2, FileText, Clock, CheckCircle, ShieldAlert, LogOut } from 'lucide-react';
 import { ReportListItem } from '@/types';
 import DashboardStatCard from '@/components/moderator/DashboardStatCard';
 import PendingReportsTable from '@/components/moderator/PendingReportsTable';
+import { useAuthActions } from '@/hooks/useAuthActions';
 
 const fetchDashboardData = async () => {
   const { data: reports, error: reportsError } = await supabase
@@ -45,6 +46,8 @@ const ModeratorDashboardPage: React.FC = () => {
     queryFn: fetchDashboardData,
   });
 
+  const { handleLogout, isLoading: isLoggingOut } = useAuthActions();
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -60,11 +63,30 @@ const ModeratorDashboardPage: React.FC = () => {
   return (
     <div className="container mx-auto py-8 px-4 md:px-6">
       <header className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight flex items-center">
-          <ShieldAlert className="mr-3 h-8 w-8 text-primary" />
-          Moderator Dashboard
-        </h1>
-        <p className="text-muted-foreground">Review and manage trucking safety reports.</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight flex items-center">
+              <ShieldAlert className="mr-3 h-8 w-8 text-primary" />
+              Moderator Dashboard
+            </h1>
+            <p className="text-muted-foreground">Review and manage trucking safety reports.</p>
+          </div>
+          <div className="flex items-center space-x-4">
+            <Button 
+              variant="outline" 
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="flex items-center gap-2"
+            >
+              {isLoggingOut ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <LogOut className="h-4 w-4" />
+              )}
+              {isLoggingOut ? 'Logging out...' : 'Logout'}
+            </Button>
+          </div>
+        </div>
       </header>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
